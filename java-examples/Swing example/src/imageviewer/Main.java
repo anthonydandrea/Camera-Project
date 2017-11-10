@@ -1,5 +1,3 @@
-package imageviewer;
-
 import java.io.File;
 
 import javax.swing.JFileChooser;

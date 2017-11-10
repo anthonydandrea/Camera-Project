@@ -1,4 +1,3 @@
-package imageviewer;
 
 public class TickThread extends Thread {
 	private Monitor _monitor;

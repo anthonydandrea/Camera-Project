@@ -1,4 +1,3 @@
-package imageviewer;
 
 import java.awt.Image;
 import java.util.concurrent.ExecutionException;
