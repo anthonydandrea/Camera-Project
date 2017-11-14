@@ -10,14 +10,14 @@ static int bind_server_socket(int fd, int port);
 /*
  * create a server socket bound to port
  * and listening.
- *
- * return positive file descriptor
+ *  
+ * return positive file descriptor 
  * or negative value on error
  */
 int create_server_socket(int port)
 {
     int fd = -1;
-
+    
     if(port < 0 || port > 65535) {
        errno = EINVAL;
        return -1;
@@ -39,7 +39,7 @@ static int bind_server_socket(int fd, int port){
         perror("setsockopt");
         return -1;
     }
-
+    
     /* see man page ip(7) */
     addr.sin_family = AF_INET;
     addr.sin_port = htons(port);
@@ -50,7 +50,7 @@ static int bind_server_socket(int fd, int port){
 #ifdef INFO
     printf("simple_tcp_server: bound fd %d to port %d\n",fd,port);
 #endif
-
+    
     return fd;
 }
 
@@ -60,17 +60,17 @@ static int bind_server_socket(int fd, int port){
 static int do_serve(int fd)
 {
     int clientfd;
-    const char* msg = "Hello, socket!\n"
-                      "I am a text\n"
-                      "BYE.\n";
+    const char* msg = "This is the server!\n"
+                      "I am a yo daddy\n"
+                      "Please me.\n";
     size_t len = strlen(msg);
-
+    
     printf("simple_tcp_server: attempting accept on fd %d\n",fd);
     if((clientfd = accept(fd, NULL, NULL)) < 0) return -1;
 #ifdef INFO
     printf("simple_tcp_server: writing msg (len=%lu) to clientfd (%d)\n",len,clientfd);
 #endif
-
+    
 #ifdef WRITE_LOOP
     size_t written = 0;
     do {
@@ -101,15 +101,16 @@ static int do_serve(int fd)
 
 int main()
 {
-    int fd = create_server_socket(5070);
+    int fd = create_server_socket(5018);
 
     if(fd < 0){
         perror("create_server_socket");
         return 1;
     }
-
+	for(int i = 0; i < 10; i++){
     do_serve(fd);
-
+    printf("%i", i);
+}
     printf("simple_tcp_server: closing socket: %d\n", fd);
     close(fd);
 
