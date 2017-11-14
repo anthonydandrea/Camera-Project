@@ -1,9 +1,26 @@
+import java.net.ServerSocket;
 import java.net.Socket;
 
-public class ClientSharedData {
+public class ServerSharedData {
+	private volatile ServerSocket serverSocket;
 	private volatile Socket socket;
 	private volatile boolean isActive;
 	private volatile boolean shutdown;
+	
+	public ServerSharedData() {
+		serverSocket = null;
+		socket = null;
+		isActive = false;
+		shutdown = false;
+	}
+	
+	public synchronized ServerSocket getServerSocket() {
+		return serverSocket;
+	}
+	
+	public synchronized void setServerSocket(ServerSocket s) {
+		serverSocket = s;
+	}
 	
 	public synchronized Socket getSocket() {
 		return socket;

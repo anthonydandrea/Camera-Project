@@ -4,25 +4,25 @@ import java.io.InputStream;
 
 // This thread has the double responsibility of connecting 
 // and reading data from the socket
-public class ClientReadThread extends Thread {
+public class ServerReadThread extends Thread {
 
-	private ClientSharedData monitor;
+	private ServerSharedData monitor;
 	private byte[] buffer;
 	
-	public ClientReadThread(ClientSharedData mon) {
+	public ServerReadThread(ServerSharedData mon) {
 		monitor = mon;
-		buffer = new byte[25964];
+		buffer = new byte[8192];
 	}
 	
-	// Receive packages of random size from active connections.
+	// Send packages of random size to active connections
 	public void run() {
 		while (!monitor.isShutdown())
-		{
+		{			
 			try {
-				// Wait for active connection
 				monitor.waitUntilActive();
-				
+
 				InputStream is = monitor.getSocket().getInputStream();
+				
 				// Receive data packages of different sizes
 				while (true) {
 					// Read header
@@ -34,28 +34,26 @@ public class ClientReadThread extends Thread {
 					if (size != 0) break;
 					
 					// Read payload
-					int bufsize = size = Pack.unpackHeaderSize(buffer);
+					int payloadSize = size = Pack.unpackHeaderSize(buffer);
 					n = 0;
 					while ((n = is.read(buffer, n+Pack.HEAD_SIZE, size)) > 0) {
-						String s = new String(buffer);
-						System.out.println(s);
 						size -= n;
 					}
 					if (size != 0) break;
 					
 					// Unpack payload and verify integrity
-					Utils.printBuffer("ClientReadThread", bufsize, buffer);
+					Utils.printBuffer("ServerReadThread", payloadSize, buffer);
 					Pack.unpackPayloadAndVerifyChecksum(buffer);
 				}
 			} catch (IOException e) {
 				// Something happened with the connection
 				//
-				// Example: the connection is closed on the server side, but
-				// the client is still trying to write data.
+				// Example: the connection is closed on the client side, but
+				// the server is still trying to read data.
 				monitor.setActive(false);
-				Utils.println("No connection on client side");
+				Utils.println("No connection on server side");
 			} catch (InterruptedException e) {
-				// Occurs when interrupted
+				// Interrupt means shutdown
 				monitor.shutdown();
 				break;
 			}
@@ -63,6 +61,6 @@ public class ClientReadThread extends Thread {
 		
 		// No resources to dispose since this is the responsibility
 		// of the shutdown thread.
-		Utils.println("Exiting ClientReadThread");
+		Utils.println("Exiting ServerReadThread");
 	}
 }

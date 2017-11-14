@@ -43,8 +43,15 @@ public class Pack {
 		// Verify integrity of received data
 		int size = unpackHeaderSize(buffer);
 		int checksum = 0;
-		for (int i=0; i<size; i++) checksum += buffer[i+HEAD_SIZE];
-
+		for (int i=0; i<size; i++) {
+			checksum += buffer[i+HEAD_SIZE];
+//			if(buffer[i+HEAD_SIZE] != 0){
+//			System.out.println(Integer.toUnsignedString(buffer[i+HEAD_SIZE]));
+//			}
+		}
+		System.out.println("-------------------------");
+		System.out.println(buffer[2]);
+		System.out.println((byte)(checksum & 0xff));
 		if (buffer[2] != (byte)(checksum & 0xff))
 			throw new Error("Payload checksum not verified");
 		

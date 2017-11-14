@@ -6,11 +6,11 @@ import java.net.Socket;
 public class ClientShutdownThread extends Thread {
 
 	private ClientSharedData monitor;
-
+	
 	public ClientShutdownThread(ClientSharedData mon) {
 		monitor = mon;
 	}
-
+	
 	// Receive packages of random size from active connections.
 	public void run() {
 		try {
@@ -18,7 +18,7 @@ public class ClientShutdownThread extends Thread {
 		} catch (InterruptedException e) {
 			// Interrupt means shutdown
 		}
-
+		
 		// Close the socket before quitting
 		try {
 			Socket socket = monitor.getSocket();
@@ -26,6 +26,6 @@ public class ClientShutdownThread extends Thread {
 		} catch (IOException e) {
 			// Occurs if there is an error in closing the socket.
 		}
-		System.out.println("Exiting ClientShutdownThread");
+		Utils.println("Exiting ClientShutdownThread");
 	}
 }
