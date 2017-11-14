@@ -39,4 +39,10 @@ public class ClientSharedData {
 	public synchronized void waitUntilShutdown() throws InterruptedException {
 		while (!shutdown) wait();
 	}
+
+	public boolean isActive() {
+		return isActive;
+	}
+
+
 }

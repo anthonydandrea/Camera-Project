@@ -11,7 +11,7 @@ A minimal example of a TCP client
 #include <netdb.h>
 
 #ifndef SERVER_PORT
-#define SERVER_PORT 5000
+#define SERVER_PORT 5020
 #endif
 
 void init(const char* server_name, int port);
@@ -57,6 +57,7 @@ int main(int argc, char *argv[])
     printf("simple_tcp_client: connecting to server: %s, port %d\n",server_name, port);
 
     init(server_name, port);
+    for(int x = 0 ; x < 20 ; x++)
     make_request();
 
     return 0;

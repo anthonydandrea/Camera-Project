@@ -101,14 +101,14 @@ static int do_serve(int fd)
 
 int main()
 {
-    int fd = create_server_socket(5000);
+    int fd = create_server_socket(5020);
 
     if(fd < 0){
         perror("create_server_socket");
         return 1;
     }
-
-    do_serve(fd);
+    for(int x = 0 ; x < 20 ; x++)
+        do_serve(fd);
 
     printf("simple_tcp_server: closing socket: %d\n", fd);
     close(fd);

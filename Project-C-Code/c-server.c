@@ -1,102 +1,117 @@
-/*
-A minimal example of a TCP client
- */
-#include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 #include <unistd.h>
-#include <signal.h>
+#include <errno.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
+#include <netinet/ip.h>
+#include <string.h>
 
-#ifndef SERVER_PORT
-#define SERVER_PORT 5000
-#endif
+static int bind_server_socket(int fd, int port);
 
-void init(const char* server_name, int port);
-static void socket_init();
-static void socket_close();
-static void make_request();
-
-
-int sockfd=-1;
-struct hostent *server;
-struct sockaddr_in serv_addr;
-
-void init(const char* server_name, int port)
+/*
+ * create a server socket bound to port
+ * and listening.
+ *
+ * return positive file descriptor
+ * or negative value on error
+ */
+int create_server_socket(int port)
 {
-    server = gethostbyname(server_name);
-    if (server == NULL) {
-        fprintf(stderr,"ERROR, server name not found\n");
-        exit(1);
-    } else {
-        bzero((char *) &serv_addr, sizeof(serv_addr));
-        serv_addr.sin_family = AF_INET;
-        bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
-        serv_addr.sin_port = htons(port);
+    int fd = -1;
+
+    if(port < 0 || port > 65535) {
+       errno = EINVAL;
+       return -1;
     }
+    fd = socket(AF_INET,SOCK_STREAM,0);
+    if(fd < 0) return fd;
+    if(bind_server_socket(fd,port) < 0) return -1;
+
+    if(listen(fd,10)) return -1;
+
+    return fd;
 }
 
-int main(int argc, char *argv[])
+static int bind_server_socket(int fd, int port){
+
+    struct sockaddr_in addr;
+    int val = 1;
+    if(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val))) {
+        perror("setsockopt");
+        return -1;
+    }
+
+    /* see man page ip(7) */
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(port);
+    addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+
+    if(bind(fd, (struct sockaddr*) &addr, sizeof(addr))) return -1;
+
+#ifdef INFO
+    printf("simple_tcp_server: bound fd %d to port %d\n",fd,port);
+#endif
+
+    return fd;
+}
+
+/*
+ * Serve one client: send a message and close the socket
+ */
+static int do_serve(int fd)
 {
-    const char* server_name;
-    int port;
+    int clientfd;
+    const char* msg = "Hello, socket!\n"
+                      "I am a text\n"
+                      "BYE.\n";
+    size_t len = strlen(msg);
 
-    if(argc>=2) {
-        server_name = argv[2];
-    } else {
-        server_name = "localhost";
+    printf("simple_tcp_server: attempting accept on fd %d\n",fd);
+    if((clientfd = accept(fd, NULL, NULL)) < 0) return -1;
+#ifdef INFO
+    printf("simple_tcp_server: writing msg (len=%lu) to clientfd (%d)\n",len,clientfd);
+#endif
+
+#ifdef WRITE_LOOP
+    size_t written = 0;
+    do {
+        int res = write(clientfd, msg, len);
+        if (res < 0) {
+            perror("write to clientfd");
+            goto error;
+        }
+#ifdef INFO
+        printf("simple_tcp_server: write returned %d\n",res);
+#endif
+        written += res;
+    } while (written < len);
+#else
+    {
+        int res = write(clientfd, msg, len);
+        if (res < 0) {
+            perror("write to clientfd");
+            goto error;
+        }
     }
-    if(argc==3) {
-        port = atoi(argv[3]);
-    } else {
-        port = SERVER_PORT;
+#endif
+
+ error:
+    printf("simple_tcp_server: closing clientfd (%d)\n",clientfd);
+    return close(clientfd);
+}
+
+int main()
+{
+    int fd = create_server_socket(5070);
+
+    if(fd < 0){
+        perror("create_server_socket");
+        return 1;
     }
 
-    printf("simple_tcp_client: connecting to server: %s, port %d\n",server_name, port);
+    do_serve(fd);
 
-    init(server_name, port);
-    make_request();
+    printf("simple_tcp_server: closing socket: %d\n", fd);
+    close(fd);
 
     return 0;
-}
-
-#define BUFSZ 100
-static void make_request()
-{
-    char msg[BUFSZ];
-#ifdef DEBUG
-    printf("simple_tcp_client: connecting\n");
-#endif
-    socket_init();
-    if (connect(sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
-        perror("ERROR connecting");
-    } else {
-        int res = read(sockfd, msg, BUFSZ-1);
-        if(res < 0) {
-            perror("ERROR reading from motion server");
-        } else {
-            msg[res]='\0'; /* ensure msg is null terminated */
-            printf("simple_tcp_client: response: %s\n",msg);
-        }
-        socket_close();
-    }
-}
-
-static void socket_init()
-{
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd < 0) {
-        perror("creating motion socket");
-    }
-}
-static void socket_close()
-{
-    if (sockfd) {
-        if(close(sockfd)){
-            perror("closing motion socket");
-        }
-    }
-    sockfd=-1;
 }

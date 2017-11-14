@@ -6,13 +6,20 @@ public class Main {
 			try {
 				System.out.println("Starting network client");
 				ClientSharedData monitor = new ClientSharedData();
-				Thread[] threads = new Thread[] {
+				/*Thread[] threads = new Thread[] {
 					new ClientReadThread(monitor),
 					new ClientWriteThread(monitor),
-					new ClientConnectionThread(monitor, "localhost", 22222),
+					new ClientConnectionThread(monitor, "localhost", 5000),
+					new ClientShutdownThread(monitor)
+				};*/
+
+				Thread[] threads = new Thread[] {
+					new ClientReadThread(monitor),
+					new ClientConnectionThread(monitor, "localhost", 5070),
 					new ClientShutdownThread(monitor)
 				};
-				
+
+
 				// Start threads
 				for (Thread thread : threads) thread.start();
 
@@ -23,13 +30,14 @@ public class Main {
 				for (Thread thread : threads) thread.join(); // Wait for threads to die
 
 				System.out.println("Network client finished");
-			} catch (InterruptedException e) {
+
+			} catch(Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
-	private static class StartServer extends Thread {
+	/*private static class StartServer extends Thread {
 		public void run() {
 			try {
 				System.out.println("Starting network server");
@@ -40,10 +48,10 @@ public class Main {
 					new ServerConnectionThread(monitor, 22222),
 					new ServerShutdownThread(monitor)
 				};
-				
+
 				// Start threads
 				for (Thread thread : threads) thread.start();
-				
+
 				// Interrupt threads after some time
 				Thread.sleep(15000);
 				System.out.println("Interrupting server threads");
@@ -55,15 +63,15 @@ public class Main {
 				e.printStackTrace();
 			}
 		}
-	}
+	}*/
 
 	public static void main(String[] args) {
 		try {
-			Thread a = new StartServer();
+			//Thread a = new StartServer();
 			Thread b = new StartClient();
-			a.start();
+			//a.start();
 			b.start();
-			a.join();
+			//a.join();
 			b.join();
 		} catch (InterruptedException e) {
 		}

@@ -3,7 +3,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-// This thread has the double responsibility of connecting 
+// This thread has the double responsibility of connecting
 // and reading data from the socket
 public class ClientConnectionThread extends Thread {
 
@@ -11,14 +11,14 @@ public class ClientConnectionThread extends Thread {
 	private String host;
 	private int port;
 	private boolean reconnect;
-	
+
 	public ClientConnectionThread(ClientSharedData mon, String host, int port) {
 		monitor = mon;
 		this.host = host;
 		this.port = port;
 		reconnect = false;
 	}
-	
+
 	// Connect and reconnect if connection is dropped.
 	public void run() {
 		while (!monitor.isShutdown())
@@ -26,20 +26,21 @@ public class ClientConnectionThread extends Thread {
 			try {
 				// In case of a reconnect, wait some time to avoid busy wait
 				if (reconnect) Thread.sleep(1000);
-				
+
 				// Establish connection
 				Socket socket = new Socket(host, port);
-				
+
 				// Configure socket to immediately send data.
 				// This is good for streaming.
 				socket.setTcpNoDelay(true);
-				
+
 				// Inform monitor there is a connection
 				monitor.setSocket(socket);
 				monitor.setActive(true);
-				
+				System.out.println("Client connected");
 				monitor.waitUntilNotActive();
-				
+				monitor.shutdown();
+
 			} catch (UnknownHostException e) {
 				// Occurs if the socket cannot find the host
 			} catch (IOException e) {
@@ -48,13 +49,13 @@ public class ClientConnectionThread extends Thread {
 				// Example: the connection is closed on the server side, but
 				// the client is still trying to write data.
 				monitor.setActive(false);
-				Utils.println("No connection on client side");
+				System.out.println("No connection on client side");
 			} catch (InterruptedException e) {
 				// Occurs when interrupted
 				monitor.shutdown();
 				break;
 			}
-			
+
 			// Next connection is a reconnect attempt
 			reconnect = true;
 
@@ -66,9 +67,9 @@ public class ClientConnectionThread extends Thread {
 				// Occurs if there is an error in closing the socket.
 			}
 		}
-		
+
 		// No resources to dispose since this is the responsibility
 		// of the shutdown thread.
-		Utils.println("Exiting ClientConnectionThread");
+		System.out.println("Exiting ClientConnectionThread");
 	}
 }

@@ -6,7 +6,9 @@
 	// COMPLETE METHODS
 
 
-public class monitor {
+public class Monitor {
+	/*
+
 	// Attributes here
 	int cameraMode; // MOVIE vs IDLE
 	int lastCamMode;
@@ -18,7 +20,7 @@ public class monitor {
 	// CLASS IMAGE w/ IMAGE AND TIMESTAMP
 	boolean modeChanged;
 	int frames;
-	
+
 	synchronized void addImage(boolean none, int image) {
 		// Check if none == new image
 		if(none == true) {
@@ -31,7 +33,7 @@ public class monitor {
 		// Alerts other threads
 		notifyAll();
 	}
-	
+
 	synchronized void changeMode(int type, int newMode) {
 		// changes either viewing mode or cam mode
 		if(type == 0) {
@@ -57,7 +59,7 @@ public class monitor {
 		}
 		// alerts other threads
 	}
-	
+
 	synchronized void  display() {
 		// wait until new image available
 		// find the waiting time
@@ -68,7 +70,7 @@ public class monitor {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			// recheck image times 
+			// recheck image times
 		}
 		if(newImage) {
 			// check if mode changes
@@ -76,7 +78,7 @@ public class monitor {
 			// displays the next image
 		}
 	}
-	
+
 	synchronized int framesRate() {
 		// Look at mode
 		// tell camera new rate
@@ -91,4 +93,5 @@ public class monitor {
 		modeChanged = false;
 		return frames;
 	}
+	*/
 }
