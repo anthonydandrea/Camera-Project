@@ -7,8 +7,8 @@
 
 
 public class Monitor {
-	/*
-
+	
+	
 	// Attributes here
 	int cameraMode; // MOVIE vs IDLE
 	int lastCamMode;
@@ -19,8 +19,26 @@ public class Monitor {
 	boolean newImage; // new picture available
 	// CLASS IMAGE w/ IMAGE AND TIMESTAMP
 	boolean modeChanged;
+	boolean emptyList;
 	int frames;
-
+	
+	public static final int IDLE_MODE  = 0;
+	public static final int MOVIE_MODE = 1;
+	
+	public static final int SYNCHRONOUS_MODE  = 0;
+	public static final int ASYNCHRONOUS_MODE = 1;
+	
+	public Monitor(){
+		newImage = false;
+		modeChanged = false;
+		emptyList = true;
+		cameraMode = IDLE_MODE;
+		//lastCamMode = IDLE_MODE;
+		viewingMode = SYNCHRONOUS_MODE;
+		//lastViewingMode = SYNCHRONOUS_MODE;
+		
+	}
+	
 	synchronized void addImage(boolean none, int image) {
 		// Check if none == new image
 		if(none == true) {
@@ -33,7 +51,6 @@ public class Monitor {
 		// Alerts other threads
 		notifyAll();
 	}
-
 	synchronized void changeMode(int type, int newMode) {
 		// changes either viewing mode or cam mode
 		if(type == 0) {
@@ -59,26 +76,44 @@ public class Monitor {
 		}
 		// alerts other threads
 	}
-
 	synchronized void  display() {
 		// wait until new image available
 		// find the waiting time
 		// imageTime = smallest amount of time until the next image is shown
-		while(imageTime > System.currentTimeMillis() && !newImage) {
-			try {
-				wait(imageTime);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+		
+		if(emptyList==true){
+			while(Thread.currentThread().data.size() == 0) {
+				try {
+					wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
-			// recheck image times
+			//if(this.data.imageList.size() == 0){
+			imageTime = Thread.currentThread().data.imageList.get(0).getTimestamp();
+			emptyList = false;
+			//}
 		}
-		if(newImage) {
-			// check if mode changes
-		} else {
-			// displays the next image
+		else{
+			if(Thread.currentThread().data.imageList.get(0).getTimestamp() < imageTime){ // data is the ImageList attribute of the current thread
+				imageTime = Thread.currentThread().data.imageList.get(0).getTimestamp();
+			}
+			while(imageTime > System.currentTimeMillis() && !newImage) {
+				try {
+					wait(imageTime);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				// recheck image times
+				
+			}
+			if(newImage) {
+				// check if mode changes
+			} else {
+				// displays the next image
+			}
 		}
 	}
-
 	synchronized int framesRate() {
 		// Look at mode
 		// tell camera new rate
@@ -93,5 +128,5 @@ public class Monitor {
 		modeChanged = false;
 		return frames;
 	}
-	*/
+	
 }
