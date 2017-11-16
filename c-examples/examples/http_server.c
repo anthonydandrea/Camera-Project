@@ -15,7 +15,7 @@
 // #define INFO
 
 // more diagnostic printouts
-// #undef DEBUG
+//#undef DEBUG
 
 // the strncasecmp function is not in the ISO C standard
 // #define USE_POSIX_FUNCTION
@@ -25,7 +25,7 @@
 #endif
 
 #ifndef MOTION_PORT
-#define MOTION_PORT 9090
+#define MOTION_PORT 9091
 #endif
 
 #define BUFSIZE 50000
@@ -251,13 +251,18 @@ void* serve_client(void *ctxt)
     printf("buf[%s]\n", buf);
 #endif
     int hres = parse_http_request(buf, 1024);
+
+    snprintf(client->sendBuff, sizeof(client->sendBuff), "Hello...\n");
+client_write_string(client);
+
+/*
     if(hres == 0) {
 #ifdef USE_CAMERA
 	    int cres=0;
             if( !client->cam || (cres=try_get_frame(client))) {
                 printf("ERROR getting frame from camera: %d\n",cres);
 		send_internal_error(client, "Error getting frame from camera\n");
-            } 
+            }
 #else
         snprintf(client->sendBuff, sizeof(client->sendBuff), "Hello...\n");
 	client_write_string(client);
@@ -278,7 +283,7 @@ void* serve_client(void *ctxt)
 		     strlen(msg), msg);
 	}
 	client_write_string(client);
-    }
+}*/
     return (void*) (intptr_t) close(client->connfd);
 }
 

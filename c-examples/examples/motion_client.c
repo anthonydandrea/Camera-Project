@@ -11,7 +11,7 @@ to the motion server and prints the response on stdout.
 #include <netdb.h>
 
 #ifndef MOTION_CLIENT_PORT
-#define MOTION_CLIENT_PORT 9091
+#define MOTION_CLIENT_PORT 9090
 #endif
 
 void init(const char* server_name, int port);

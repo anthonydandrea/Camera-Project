@@ -1,3 +1,4 @@
+
 #ifndef __FAKECAPTURE_H
 #define __FAKECAPTURE_H
 
@@ -39,10 +40,10 @@ media_stream *
 capture_open_stream(const char *media_type, const char *media_props);
 
 /**
- * @brief Read a media_frame from an open stream. 
+ * @brief Read a media_frame from an open stream.
  *
  * @param stream The structure associated with the stream.
- * 
+ *
  * @return A pointer to the data frame.
  */
 media_frame *
@@ -96,7 +97,7 @@ capture_frame_height(const media_frame *frame);
 size_t
 capture_frame_width(const media_frame *frame);
 
-void 
+void
 capture_frame_free(media_frame *frame);
 
 void
