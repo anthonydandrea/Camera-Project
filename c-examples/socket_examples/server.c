@@ -76,8 +76,19 @@ static int do_serve(int fd)
     fclose(fileptr); // Close the file
 
     printf("filelength: %lu\n",filelen);
-    for(int x = 0 ; x < filelen ; x++);
+
+    FILE *f = fopen("picC.txt", "w");
+    if (f == NULL)
+    {
+      printf("Error opening file!\n");
+      exit(1);
+    }
+
+    for(int x = 0 ; x < filelen ; x++)
       //  printf("%d",msg[x]);
+      fprintf(f, "%d", msg[x]);
+
+    fclose(f);
 
 
   ////////////////////////////////////

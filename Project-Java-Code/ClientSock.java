@@ -10,7 +10,7 @@ public class ClientSock {
     static PrintWriter out;
     static BufferedReader in;
     static BufferedReader stdIn;
-    static byte b[] = new byte[24663];
+    static byte b[] = new byte[30663];
 
 	public static void main(String[] args) throws IOException {
 
@@ -28,12 +28,17 @@ public class ClientSock {
 
 		    InputStream is = echoSocket.getInputStream();
 		    System.out.println(is.available());
-			is.read(b,3,b.length-3);
-			System.out.println("Dese nutszzzzzz");
+				int numRead = is.read(b,0,b.length);
+			System.out.println("Read # bytes: " + numRead);
+			String q = "";
+			for(int x = 0 ; x < numRead ; x++) {
+				//System.out.print(b[x]);
+				q += b[x];
+			}
 			String s = new String(b);
-			System.out.println(s);
-			PrintWriter w = new PrintWriter("pic.jpg");
-			w.println(s);
+			//System.out.println(s);
+			PrintWriter w = new PrintWriter("picJ.txt");
+			w.println(q);
 	} catch (Exception e ){e.printStackTrace();};
 
 		System.out.println("done");
