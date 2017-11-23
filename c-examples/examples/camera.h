@@ -1,7 +1,7 @@
 #ifdef FAKE
 #include "fakecapture.h"
 #else
-#include "capture.h"
+#include "fakecapture.h"
 #endif
 
 #define IMAGE_JPEG "image/jpeg"

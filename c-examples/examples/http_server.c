@@ -255,7 +255,7 @@ void* serve_client(void *ctxt)
     snprintf(client->sendBuff, sizeof(client->sendBuff), "Hello...\n");
 client_write_string(client);
 
-/*
+
     if(hres == 0) {
 #ifdef USE_CAMERA
 	    int cres=0;
@@ -283,7 +283,7 @@ client_write_string(client);
 		     strlen(msg), msg);
 	}
 	client_write_string(client);
-}*/
+}
     return (void*) (intptr_t) close(client->connfd);
 }
 

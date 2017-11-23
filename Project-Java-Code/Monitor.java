@@ -7,10 +7,10 @@
 
 
 public class Monitor {
-	
-	
+
+
 	// Attributes here
-	int cameraMode; // MOVIE vs IDLE
+	/*int cameraMode; // MOVIE vs IDLE
 	int lastCamMode;
 	int lastViewingMode;
 	int viewingMode; // SYNCHRONOUS vs ASYNCHRONOUS
@@ -21,13 +21,13 @@ public class Monitor {
 	boolean modeChanged;
 	boolean emptyList;
 	int frames;
-	
+
 	public static final int IDLE_MODE  = 0;
 	public static final int MOVIE_MODE = 1;
-	
+
 	public static final int SYNCHRONOUS_MODE  = 0;
 	public static final int ASYNCHRONOUS_MODE = 1;
-	
+
 	public Monitor(){
 		newImage = false;
 		modeChanged = false;
@@ -36,9 +36,9 @@ public class Monitor {
 		//lastCamMode = IDLE_MODE;
 		viewingMode = SYNCHRONOUS_MODE;
 		//lastViewingMode = SYNCHRONOUS_MODE;
-		
+
 	}
-	
+
 	synchronized void addImage(boolean none, int image) {
 		// Check if none == new image
 		if(none == true) {
@@ -80,7 +80,7 @@ public class Monitor {
 		// wait until new image available
 		// find the waiting time
 		// imageTime = smallest amount of time until the next image is shown
-		
+
 		if(emptyList==true){
 			while(Thread.currentThread().data.size() == 0) {
 				try {
@@ -105,7 +105,7 @@ public class Monitor {
 					e.printStackTrace();
 				}
 				// recheck image times
-				
+
 			}
 			if(newImage) {
 				// check if mode changes
@@ -127,6 +127,6 @@ public class Monitor {
 		// look at mode and determine frame rate
 		modeChanged = false;
 		return frames;
-	}
-	
+	}*/:
+
 }

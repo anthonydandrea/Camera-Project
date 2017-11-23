@@ -3,7 +3,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-// This thread has the double responsibility of connecting 
+// This thread has the double responsibility of connecting
 // and reading data from the socket
 public class ClientConnectionThread extends Thread {
 
@@ -11,14 +11,14 @@ public class ClientConnectionThread extends Thread {
 	private String host;
 	private int port;
 	private boolean reconnect;
-	
+
 	public ClientConnectionThread(ClientSharedData mon, String host, int port) {
 		monitor = mon;
 		this.host = host;
 		this.port = port;
 		reconnect = false;
 	}
-	
+
 	// Connect and reconnect if connection is dropped.
 	public void run() {
 		while (!monitor.isShutdown())
@@ -29,20 +29,20 @@ public class ClientConnectionThread extends Thread {
 					System.out.println("Reconnecting...");
 					Thread.sleep(1000);
 				}
-				
+
 				// Establish connection
 				Socket socket = new Socket(host, port);
-				
+
 				// Configure socket to immediately send data.
 				// This is good for streaming.
 				socket.setTcpNoDelay(true);
-				
+
 				// Inform monitor there is a connection
 				monitor.setSocket(socket);
 				monitor.setActive(true);
-				
+				System.out.println("Connected to socket");
 				monitor.waitUntilNotActive();
-				System.out.println(socket.isConnected());
+
 			} catch (UnknownHostException e) {
 				// Occurs if the socket cannot find the host
 			} catch (IOException e) {
@@ -57,7 +57,7 @@ public class ClientConnectionThread extends Thread {
 				monitor.shutdown();
 				break;
 			}
-			
+
 			// Next connection is a reconnect attempt
 			reconnect = true;
 
@@ -69,7 +69,7 @@ public class ClientConnectionThread extends Thread {
 				// Occurs if there is an error in closing the socket.
 			}
 		}
-		
+
 		// No resources to dispose since this is the responsibility
 		// of the shutdown thread.
 		Utils.println("Exiting ClientConnectionThread");

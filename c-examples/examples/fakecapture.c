@@ -98,6 +98,7 @@ capture_get_frame(media_stream *stream)
    printf("trying to open %s\n", fname);
 #endif
    fd = open(fname, O_RDONLY);
+   printf("fd = %d\n",fd);
    if(fd < 0) {
        perror("fakecapture:capture_get_frame:open");
        return NULL;
@@ -122,6 +123,7 @@ capture_get_frame(media_stream *stream)
    fake_motion_detect(stream->frame_nr);
 #endif
 
+   printf("No errors getting image\n");
    return res;
 }
 

@@ -9,10 +9,10 @@ public class Main {
 				Thread[] threads = new Thread[] {
 					new ClientReadThread(monitor),
 					//new ClientWriteThread(monitor),
-					new ClientConnectionThread(monitor, "localhost", 5018),
+					new ClientConnectionThread(monitor, "localhost", 9996),
 					new ClientShutdownThread(monitor)
 				};
-				
+
 				// Start threads
 				for (Thread thread : threads) {
 					thread.start();
@@ -20,7 +20,8 @@ public class Main {
 				}
 
 				// Interrupt threads after some time
-				Thread.sleep(10000);
+				int x = 0;
+				Thread.sleep(100000);
 				System.out.println("Interrupting client threads");
 				for (Thread thread : threads) thread.interrupt(); // Interrupt threads
 				for (Thread thread : threads) thread.join(); // Wait for threads to die
@@ -43,10 +44,10 @@ public class Main {
 //					new ServerConnectionThread(monitor, 22222),
 //					new ServerShutdownThread(monitor)
 //				};
-//				
+//
 //				// Start threads
 //				for (Thread thread : threads) thread.start();
-//				
+//
 //				// Interrupt threads after some time
 //				Thread.sleep(15000);
 //				System.out.println("Interrupting server threads");

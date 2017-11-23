@@ -10,14 +10,14 @@ static int bind_server_socket(int fd, int port);
 /*
  * create a server socket bound to port
  * and listening.
- *  
- * return positive file descriptor 
+ *
+ * return positive file descriptor
  * or negative value on error
  */
 int create_server_socket(int port)
 {
     int fd = -1;
-    
+
     if(port < 0 || port > 65535) {
        errno = EINVAL;
        return -1;
@@ -39,7 +39,7 @@ static int bind_server_socket(int fd, int port){
         perror("setsockopt");
         return -1;
     }
-    
+
     /* see man page ip(7) */
     addr.sin_family = AF_INET;
     addr.sin_port = htons(port);
@@ -50,7 +50,7 @@ static int bind_server_socket(int fd, int port){
 #ifdef INFO
     printf("simple_tcp_server: bound fd %d to port %d\n",fd,port);
 #endif
-    
+
     return fd;
 }
 
@@ -59,18 +59,43 @@ static int bind_server_socket(int fd, int port){
  */
 static int do_serve(int fd)
 {
+
+  //////////////////////////////////
+
+    FILE *fileptr;
+    char *msg;
+    long filelen;
+
+    fileptr = fopen("media/film001.jpg", "rb");  // Open the file in binary mode
+    fseek(fileptr, 0, SEEK_END);          // Jump to the end of the file
+    filelen = ftell(fileptr);             // Get the current byte offset in the file
+    rewind(fileptr);                      // Jump back to the beginning of the file
+
+    msg = (char *)malloc((filelen+1)*sizeof(char)); // Enough memory for file + \0
+    fread(msg, filelen, 1, fileptr); // Read in the entire file
+    fclose(fileptr); // Close the file
+
+    printf("filelength: %lu\n",filelen);
+    for(int x = 0 ; x < filelen ; x++);
+      //  printf("%d",msg[x]);
+
+
+  ////////////////////////////////////
+
+
     int clientfd;
-    const char* msg = "Hello, socket!\n"
+    /*const char* msg = "Hello, socket!\n"
                       "I am a text\n"
                       "BYE.\n";
-    size_t len = strlen(msg);
-    
+                      */
+    size_t len = filelen;
+    printf("len:%lu\n",len);
     printf("simple_tcp_server: attempting accept on fd %d\n",fd);
     if((clientfd = accept(fd, NULL, NULL)) < 0) return -1;
 #ifdef INFO
     printf("simple_tcp_server: writing msg (len=%lu) to clientfd (%d)\n",len,clientfd);
 #endif
-    
+
 #ifdef WRITE_LOOP
     size_t written = 0;
     do {
@@ -101,14 +126,14 @@ static int do_serve(int fd)
 
 int main()
 {
-    int fd = create_server_socket(5020);
+    int fd = create_server_socket(9996);
 
     if(fd < 0){
         perror("create_server_socket");
         return 1;
     }
-    for(int x = 0 ; x < 20 ; x++)
-        do_serve(fd);
+
+    do_serve(fd);
 
     printf("simple_tcp_server: closing socket: %d\n", fd);
     close(fd);

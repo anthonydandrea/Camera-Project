@@ -15,14 +15,14 @@ static int bind_socket(int fd, int port);
 /*
  * create a server socket bound to port
  * and listening.
- *  
- * return positive file descriptor 
+ *
+ * return positive file descriptor
  * or negative value on error
  */
 int create_socket(int port)
 {
     int fd = -1;
-    
+
     if(port < 0 || port > 65535) {
        errno = EINVAL;
        return -1;
@@ -41,7 +41,7 @@ static int bind_socket(int fd, int port){
     //     perror("setsockopt");
     //     return -1;
     // }
-    
+
     /* see man page ip(7) */
     addr.sin_family = AF_INET;
     addr.sin_port = htons(port);
@@ -52,7 +52,7 @@ static int bind_socket(int fd, int port){
 #ifdef INFO
     printf("simple_server: bound fd %d to port %d\n",fd,port);
 #endif
-    
+
     return fd;
 }
 
@@ -61,33 +61,52 @@ static int bind_socket(int fd, int port){
  */
 static int do_serve(int fd)
 {
-    char buf[BUFSZ];
+  //////////////////////////////////
+
+    FILE *fileptr;
+    char buffer;
+    long filelen;
+
+    fileptr = fopen("media/1.jpg", "rb");  // Open the file in binary mode
+    fseek(fileptr, 0, SEEK_END);          // Jump to the end of the file
+    filelen = ftell(fileptr);             // Get the current byte offset in the file
+    rewind(fileptr);                      // Jump back to the beginning of the file
+
+    char* buf = &buffer;
+    buf = (char *)malloc((filelen+1)*sizeof(char)); // Enough memory for file + \0
+    fread(buf, filelen, 1, fileptr); // Read in the entire file
+    fclose(fileptr); // Close the file
+
+
+  ////////////////////////////////////
+  //  char buf[BUFSZ];
     struct sockaddr_in remote_end;
     socklen_t remote_size = sizeof(remote_end);
-    
+
    //  const char* msg = "Hello, socket!\n"
    //                    "I am a text\n"
    //                    "BYE.\n";
    // size_t len = strlen(msg);
-   ssize_t len;
-    
+   ssize_t len = filelen;
+   printf("len: %ld\n",len);
+
     printf("simple_server: waiting for datagram on fd %d\n",fd);
-    
+
     len = recvfrom(fd, buf, BUFSZ-1, 0, (struct sockaddr*) &remote_end, &remote_size);
     if(len == -1){
         perror("recvfrom");
         return len;
     }
     buf[len] = 0; /* add null termination to string*/
-    
+
 
     printf("simple_server: received packet from %s:%d, len=%zu\n%s\n",
            inet_ntoa(remote_end.sin_addr),
            ntohs(remote_end.sin_port),
            len,
-           buf);
-    
-    len = sendto(fd, buf, len, 0, (struct sockaddr*) &remote_end, remote_size);
+           *buf);
+
+    len = sendto(fd, *buf, len, 0, (struct sockaddr*) &remote_end, remote_size);
     if(len == -1){
         perror("sendto");
         return len;
@@ -127,4 +146,3 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-

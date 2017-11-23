@@ -1,9 +1,9 @@
 public class ImageList{
 
-	List<DataObject> imageList;
-	
+//	List<DataObject> imageList;
+
 	ImageList(){
-		imageList = new ArrayList<DataObject>();
+		//imageList = new ArrayList<DataObject>();
 	}
-	
+
 }
