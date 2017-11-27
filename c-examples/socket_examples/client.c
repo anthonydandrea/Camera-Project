@@ -11,7 +11,7 @@ A minimal example of a TCP client
 #include <netdb.h>
 
 #ifndef SERVER_PORT
-#define SERVER_PORT 9996
+#define SERVER_PORT 9990
 #endif
 
 void init(const char* server_name, int port);
@@ -57,13 +57,12 @@ int main(int argc, char *argv[])
     printf("simple_tcp_client: connecting to server: %s, port %d\n",server_name, port);
 
     init(server_name, port);
-    for(int x = 0 ; x < 20 ; x++)
     make_request();
 
     return 0;
 }
 
-#define BUFSZ 100
+#define BUFSZ 24664
 static void make_request()
 {
     char msg[BUFSZ];
@@ -81,6 +80,14 @@ static void make_request()
             msg[res]='\0'; /* ensure msg is null terminated */
             printf("simple_tcp_client: response: %s\n",msg);
         }
+        printf("%lu",sizeof(msg));
+
+        FILE *f = fopen("picReceived.jpg","w");
+        for(int x = 0 ; x < sizeof(msg)/sizeof(msg[0])-1 ; x++) {
+            printf("%d",msg[x]);
+            fprintf(f, "%d", msg[x]);
+        }
+        fclose(f);
         socket_close();
     }
 }
