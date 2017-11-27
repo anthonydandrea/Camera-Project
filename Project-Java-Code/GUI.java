@@ -13,11 +13,14 @@ public class GUI {
    // Text labels
    private JLabel camLabel1;
    private JLabel camLabel2;
-   private JLabel modeLabel;
-   private JLabel statusLabel;
+   private JLabel viewModeLabel;
+   private JLabel camModeLabel;
+   private JLabel viewStatusLabel;
+   private JLabel camStatusLabel;
    
    // Panels containing buttons and images
-   private JPanel buttonPanel;
+   private JPanel viewButtonPanel;
+   private JPanel camButtonPanel;
    public ImagePanel imagePanel1;
    public ImagePanel imagePanel2;
 
@@ -35,20 +38,27 @@ public class GUI {
       // Create the labels
       camLabel1 = new JLabel("",JLabel.CENTER );
       camLabel2 = new JLabel("",JLabel.CENTER );
-      modeLabel = new JLabel("",JLabel.CENTER);
-      camLabel1.setPreferredSize(new Dimension(475, 75));
-      camLabel2.setPreferredSize(new Dimension(475, 75));
-      modeLabel.setPreferredSize(new Dimension(650, 75));
-      statusLabel = new JLabel("",JLabel.CENTER);        
-      statusLabel.setSize(350,100);
-      statusLabel.setText("Current Mode: Automatic"); 
+      viewModeLabel = new JLabel("",JLabel.CENTER);
+      camModeLabel = new JLabel("", JLabel.CENTER);
+      camLabel1.setPreferredSize(new Dimension(475, 15));
+      camLabel2.setPreferredSize(new Dimension(475, 15));
+      viewModeLabel.setPreferredSize(new Dimension(900, 30));
+      camModeLabel.setPreferredSize(new Dimension(900, 30));
+      viewStatusLabel = new JLabel("",JLabel.CENTER);        
+      viewStatusLabel.setSize(800,100);
+      viewStatusLabel.setText("Current Viewing Mode: Automatic"); 
+      camStatusLabel = new JLabel("", JLabel.CENTER);
+      camStatusLabel.setSize(800, 100);
+      camStatusLabel.setText("Current Camera Mode: Automatic");
       
       camLabel1.setText("Camera 1"); 
-      camLabel1.setFont(camLabel1.getFont().deriveFont(18.0f));
+      camLabel1.setFont(camLabel1.getFont().deriveFont(14.0f));
       camLabel2.setText("Camera 2");
-      camLabel2.setFont(camLabel2.getFont().deriveFont(18.0f));
-      modeLabel.setText("Viewing Mode");
-      modeLabel.setFont(modeLabel.getFont().deriveFont(24.0f));
+      camLabel2.setFont(camLabel2.getFont().deriveFont(14.0f));
+      viewModeLabel.setText("Viewing Mode");
+      viewModeLabel.setFont(viewModeLabel.getFont().deriveFont(18.0f));
+      camModeLabel.setText("Camera Mode");
+      camModeLabel.setFont(camModeLabel.getFont().deriveFont(18.0f));
       
       mainFrame.addWindowListener(new WindowAdapter() {
          public void windowClosing(WindowEvent windowEvent){
@@ -57,9 +67,13 @@ public class GUI {
       }); 
       
       // Create a panel with the buttons
-      buttonPanel = new JPanel();
-      buttonPanel.setLayout(new FlowLayout());
-      buttonPanel.setPreferredSize(new Dimension(900, 75));
+      viewButtonPanel = new JPanel();
+      viewButtonPanel.setLayout(new FlowLayout());
+      viewButtonPanel.setPreferredSize(new Dimension(900, 55));
+      
+      camButtonPanel = new JPanel();
+      camButtonPanel.setLayout(new FlowLayout());
+      camButtonPanel.setPreferredSize(new Dimension(900, 55));
       
       // Create a the panels showing the images
       imagePanel1 = new ImagePanel();
@@ -73,38 +87,56 @@ public class GUI {
       mainFrame.add(camLabel2);
       mainFrame.add(imagePanel1);
       mainFrame.add(imagePanel2);
-      mainFrame.add(modeLabel);
-      mainFrame.add(buttonPanel);
-      mainFrame.add(statusLabel);
+      mainFrame.add(viewModeLabel);
+      mainFrame.add(viewButtonPanel);
+      mainFrame.add(viewStatusLabel);
+      mainFrame.add(camModeLabel);
+      mainFrame.add(camButtonPanel);
+      mainFrame.add(camStatusLabel);
       mainFrame.setVisible(true);  
    }
    
    public void runGUI(){
 	   // Create the buttons
       JButton synchButton = new JButton("Synchronized");
-      JButton autoButton = new JButton("Automatic");
+      JButton autoViewButton = new JButton("Automatic");
       JButton asynchButton = new JButton("Asynchronized");
-
+      JButton idleButton = new JButton("Idle");
+      JButton autoCamButton = new JButton("Automatic");
+      JButton movieButton = new JButton("Movie");
+      
       // Set size of buttons
       synchButton.setPreferredSize(new Dimension(120, 50));
-      autoButton.setPreferredSize(new Dimension(120, 50));
+      autoViewButton.setPreferredSize(new Dimension(120, 50));
       asynchButton.setPreferredSize(new Dimension(120, 50));
+      idleButton.setPreferredSize(new Dimension(120, 50));
+      autoCamButton.setPreferredSize(new Dimension(120, 50));
+      movieButton.setPreferredSize(new Dimension(120, 50));
       
       // Set action commands
       synchButton.setActionCommand("SYNCH");
-      autoButton.setActionCommand("AUTO");
+      autoViewButton.setActionCommand("AUTOVIEW");
       asynchButton.setActionCommand("ASYNCH");
+      idleButton.setActionCommand("IDLE");
+      autoCamButton.setActionCommand("AUTOCAM");
+      movieButton.setActionCommand("MOVIE");
 
       // Create listeners for buttons
       synchButton.addActionListener(new ButtonClickListener()); 
-      autoButton.addActionListener(new ButtonClickListener()); 
+      autoViewButton.addActionListener(new ButtonClickListener()); 
       asynchButton.addActionListener(new ButtonClickListener()); 
+      idleButton.addActionListener(new ButtonClickListener());
+      autoCamButton.addActionListener(new ButtonClickListener());
+      movieButton.addActionListener(new ButtonClickListener());
 
       // Add buttons to button panel
-      buttonPanel.add(synchButton);
-      buttonPanel.add(autoButton);
-      buttonPanel.add(asynchButton);       
-
+      viewButtonPanel.add(synchButton);
+      viewButtonPanel.add(autoViewButton);
+      viewButtonPanel.add(asynchButton);       
+      camButtonPanel.add(idleButton);
+      camButtonPanel.add(autoCamButton);
+      camButtonPanel.add(movieButton);
+      
       mainFrame.setVisible(true);  
    }
    
@@ -119,18 +151,30 @@ public class GUI {
          
          // Determine action to take based on the command
          if( command.equals( "SYNCH" ))  {
-            statusLabel.setText("Current Mode: Synchronized");
-            // Call monitor here to change mode
-            mon.changeMode(0);
-         } else if( command.equals( "AUTO" ) )  {
-            statusLabel.setText("Current Mode: Automatic"); 
-            // Call monitor here to change mode
-            mon.changeMode(2);
-         } else {
-            statusLabel.setText("Current Mode: Asynchronized");
-            // Call monitor here to change mode
-            mon.changeMode(1);
-         }  	
+            viewStatusLabel.setText("Current Viewing Mode: Synchronized");
+            // Synchronous Mode
+            mon.changeMode(0, 0);
+         } else if( command.equals( "AUTOVIEW" ) )  {
+            viewStatusLabel.setText("Current Viewing Mode: Automatic"); 
+            // Automatic viewing mode
+            mon.changeMode(2, 0);
+         } else if (command.equals("ASYNCH")){
+            viewStatusLabel.setText("Current Viewing Mode: Asynchronized");
+            // Asynchronous Mode
+            mon.changeMode(1, 0);
+         }  	else if (command.equals("IDLE")) {
+        	 	// Idle Mode
+        	 	camStatusLabel.setText("Current Camera Mode: Idle");
+        	 	mon.changeMode(0, 1);
+         } else if (command.equals("AUTOCAM")) {
+        	 	// Automatic camera Mode
+        	 	camStatusLabel.setText("Current Camera Mode: Automatic");
+        	 	mon.changeMode(2,  1);
+         } else if (command.equals("MOVIE")) {
+        	 	// Movie mode
+        	 	camStatusLabel.setText("Current Camera Mode: Movie");
+        	 	mon.changeMode(1, 1);
+         }
       }		
    }
 }
