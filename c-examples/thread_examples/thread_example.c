@@ -17,6 +17,7 @@ struct global_data{
 
 void * task_a(void * ctx)
 {
+    // task to be done in thread a
     struct global_data *d = ctx;
     int i;
 
@@ -29,6 +30,7 @@ void * task_a(void * ctx)
 
 void * task_b(void * ctx)
 {
+    // task to be done in thread b
     struct global_data *d = ctx;
     int i;
 
@@ -43,6 +45,7 @@ void * task_b(void * ctx)
 int main()
 {
     struct global_data data = {10};
+    // declare threads
     pthread_t thread_a;
     pthread_t thread_b;
 #ifdef RETURN_INT

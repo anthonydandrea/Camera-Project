@@ -1,3 +1,7 @@
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.*;
 
 class FakeCameraMain {
 	public static void main(String[] args){
@@ -15,11 +19,22 @@ class FakeCameraMain {
 	     fi = new FileImage("/Users/Sonja/Desktop/Camera-Project/c-examples/examples/media/4.jpg");
 	     byte[] image4 = fi.getData();
 			
+        ClientSock cs = new ClientSock();
+        
+        byte[] clientIm = cs.ClientReadSingleImage();
+        
+        //try {
+        //    BufferedImage image = ImageIO.read( new ByteArrayInputStream(clientIm) );
+        //    ImageIO.write(image, "JPG", new File("SIMAIN.jpg"));
+        //} catch (IOException e){
+        //    e.printStackTrace();
+        //}
+        
 	     monitor m = new monitor(gui);
 	     gui.addMonitor(m);
 	     
 		System.out.println("Starting Camera");
-		  FakeCameraThread cam1 = new FakeCameraThread(image1, image2, image3, image4, m, 1);
+		  FakeCameraThread cam1 = new FakeCameraThread(image1, image2, image3, clientIm, m, 1);
 		  cam1.start();
 		  
 		  FakeCameraThread cam2 = new FakeCameraThread(image1, image2, image3, image4, m, 2);

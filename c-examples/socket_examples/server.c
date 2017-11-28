@@ -77,7 +77,7 @@ static int do_serve(int fd)
 
     printf("filelength: %lu\n",filelen);
 
-    FILE *f = fopen("picC.txt", "w");
+    FILE *f = fopen("CSent.txt", "w");
     if (f == NULL)
     {
       printf("Error opening file!\n");
@@ -115,6 +115,7 @@ static int do_serve(int fd)
             perror("write to clientfd");
             goto error;
         }
+    free(msg);
 #ifdef INFO
         printf("simple_tcp_server: write returned %d\n",res);
 #endif
@@ -137,7 +138,7 @@ static int do_serve(int fd)
 
 int main()
 {
-    int fd = create_server_socket(9996);
+    int fd = create_server_socket(9993);
 
     if(fd < 0){
         perror("create_server_socket");
@@ -148,6 +149,7 @@ int main()
 
     printf("simple_tcp_server: closing socket: %d\n", fd);
     close(fd);
+
 
     return 0;
 }
