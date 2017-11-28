@@ -27,10 +27,9 @@ LDFLAGS+=${AXIS_LIBCAP} ${AXIS_LIBCAP_DEP} ${AXIS_LIBCAP} -L${AXIS_PATH}/lib -L$
 CFLAGS+=-O3 -g -Wall
 LDLIBS+=-lpthread
 
-all: http_server motion_server
+all: motion_server
 
-http_server: http_server.o  camera.o server_common.o
-http_server.o: http_server.c camera.h 
+
 motion_server: motion_server.o  server_common.o
 motion_server.o: motion_server.c
 server_common.o: server_common.c server_common.h

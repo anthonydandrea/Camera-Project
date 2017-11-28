@@ -22,7 +22,6 @@ void * task_a(void * ctx)
     int i;
 
     printf("started task_a\n");
-    printf("HERE\n");
     for(i=0; i < d->count; ++i){
 	pthread_mutex_lock(&mtx);
 	while(d->task != 'a') pthread_cond_wait(&cnd, &mtx);
