@@ -23,7 +23,7 @@
 
 #ifdef SHORT_NUMBER_FRAME_SEQUENCE
 #define MEDIA_FRAME_STR "media/%d.jpg"
-#define START_FRAME 96
+#define START_FRAME 0
 #define NUM_FRAMES 5
 #else
 #define MEDIA_FRAME_STR "media/film%03d.jpg"

@@ -1,0 +1,29 @@
+# To run: make -f Makefile.fake 
+#
+# For compiling on PC
+CC=gcc
+
+.PHONY: all clean distclean
+all: tm tm2
+
+CPPFLAGS+=-DFAKE -DDISABLE_SANITY_CHECKS
+CPPFLAGS+=-DUSE_POSIX_FUNCTION
+CPPFLAGS+=-DINFO
+# CPPFLAGS+=-DDEBUG
+# CPPFLAGS+=-DSHORT_NUMBER_FRAME_SEQUENCE
+CFLAGS+=-g -Wall
+LDLIBS=-lpthread
+
+tm: server_common.c server.c tm.c fakecapture.c
+		$(CC) -o $@ $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) server_common.c server.c tm.c fakecapture.c $(LDLIBS)
+
+tm2: server_common.c server.c tm2.c fakecapture.c
+		$(CC) -o $@ $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) server_common.c server.c tm2.c fakecapture.c $(LDLIBS);
+
+
+
+clean:
+		-rm *.o tm tm2
+
+distclean: clean
+	-rm *.o tm tm2

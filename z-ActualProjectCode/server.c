@@ -54,6 +54,24 @@ int bind_server_socket(int fd, int port){
     return fd;
 }
 
+int clientfd;
+int getConnection(int port) {
+  int fd = create_server_socket(port);
+  if(fd < 0){
+      perror("create_server_socket");
+      return 1;
+  }
+
+  if((clientfd = accept(fd, NULL, NULL)) < 0) return -1;
+  printf("Connected successfully\n");
+  return fd;
+}
+
+int closeConnection() {
+
+  printf("simple_tcp_server: closing socket");
+  return close(clientfd);
+}
 /*
  * Serve one client: send a message and close the socket
  */
@@ -100,7 +118,7 @@ int do_serve(int fd, char *msg, long filelen)
   ////////////////////////////////////
 
 
-    int clientfd;
+
     /*const char* msg = "Hello, socket!\n"
                       "I am a text\n"
                       "BYE.\n";
@@ -108,7 +126,7 @@ int do_serve(int fd, char *msg, long filelen)
     size_t len = filelen;
     printf("len:%lu\n",len);
     printf("simple_tcp_server: attempting accept on fd %d\n",fd);
-    if((clientfd = accept(fd, NULL, NULL)) < 0) return -1;
+
 #ifdef INFO
     printf("simple_tcp_server: writing msg (len=%lu) to clientfd (%d)\n",len,clientfd);
 #endif
@@ -139,7 +157,7 @@ int do_serve(int fd, char *msg, long filelen)
 
  error:
     printf("simple_tcp_server: closing clientfd (%d)\n",clientfd);
-    return close(clientfd);
+
 }
 
 /*

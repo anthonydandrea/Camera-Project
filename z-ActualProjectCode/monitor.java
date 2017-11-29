@@ -17,11 +17,11 @@ public class monitor {
 	long dispTime; // Time to display at
 	long diff; // difference in display times
 	long lastTimeAdded; // Last time an image was added
-	
+
 	// LISTS OF IMAGES TO DISPLAY
 	LinkedList<TimestampedImage> imageList1 = new LinkedList<TimestampedImage>();
 	LinkedList<TimestampedImage> imageList2 = new LinkedList<TimestampedImage>();
-	
+
 	boolean emptyList;
 	int frames;
 
@@ -30,14 +30,14 @@ public class monitor {
 	// CONSTANTS
 	public static final int IDLE_MODE  = 0;
 	public static final int MOVIE_MODE = 1;
-	
+
 	public static final int SYNCHRONOUS_MODE  = 0;
 	public static final int ASYNCHRONOUS_MODE = 1;
     public static final int AUTOMATIC_MODE = 2;
-    
+
     public static final int CAMERA_1 = 0;
     public static final int CAMERA_2 = 1;
-	
+
 	public monitor(GUI g){
 		gui = g;
 		newImage = false;
@@ -47,19 +47,20 @@ public class monitor {
 		viewingMode = ASYNCHRONOUS_MODE;
 		userViewMode = AUTOMATIC_MODE;
 		userCamMode = AUTOMATIC_MODE;
-		
+
 	}
-	
-	synchronized void addImage(int camera, byte[] i, long timestamp, boolean motion) {
+
+	//uncomment notifyAll at bottom if made synchronized again
+	synchronized public void addImage(int camera, byte[] i, long timestamp, boolean motion) {
 		// Check if none == new image
-        
+			System.out.println("adding Image in monitor");
         // store the image into the list
        if (camera == 1){
             imageList1.add(new TimestampedImage(i, timestamp));
         } else {
         		imageList2.add(new TimestampedImage(i, timestamp));
         }
-       
+
        // check image receiving timing for viewing modes
        if (userViewMode == AUTOMATIC_MODE && (System.currentTimeMillis() - lastTimeAdded) < 200 ) {
     	   		// Images were added less than 200ms apart
@@ -73,7 +74,7 @@ public class monitor {
     	   		// Change to automatic mode
     	   		lastTimeAdded = System.currentTimeMillis();
     	   		viewingMode = ASYNCHRONOUS_MODE;
-    	   		
+
        }
         // Check for motion and change camera mode appropriately
         if (motion == true && userCamMode != IDLE_MODE){
@@ -86,9 +87,10 @@ public class monitor {
 		// Alerts other threads
 		notifyAll();
 	}
-	
+
 
 	synchronized void changeMode(int newMode, int type) {
+		System.out.println("Changing mode");
         if (type == 0) {
         		// Changes viewing mode
         		System.out.println("Changing Viewing Mode");
@@ -98,7 +100,7 @@ public class monitor {
         		} else {
         			userViewMode = newMode;
         			if (userViewMode != AUTOMATIC_MODE) {
-        				// If the user doesn't choose auto, we enforce the mode 
+        				// If the user doesn't choose auto, we enforce the mode
         				viewingMode = userViewMode;
         			}
         		}
@@ -121,17 +123,17 @@ public class monitor {
         return;
 		// alerts other threads
 	}
-	
+
 	private void viewImage(byte[] i, ImagePanel imagePanelToUpdate) {
 		  SwingWorker<Data,String> sw = new SwingWorker<Data,String>() {
 		   @Override
 		   protected Data doInBackground() throws Exception {
 			// Prepares Image for display
 		    if (imagePanelToUpdate == null) return null;
-		    Image image = imagePanelToUpdate.prepare(i); 
+		    Image image = imagePanelToUpdate.prepare(i);
 		    return new Data(image);
 		   }
-		   
+
 		   @Override
 		   protected void done() {
 		    try {
@@ -145,19 +147,21 @@ public class monitor {
 		    }
 		   }
 		  };
-		  
+
 		  sw.execute();
 	 }
-	
+
 	synchronized void  display() {
 		// display the images
-		
+		System.out.println("Display called");
+
+
         if (viewingMode == SYNCHRONOUS_MODE){
             // display the images synchronously
             // images from the same camera displayed in order
             // the two camera streams should coordinate in terms of when they display relative to each other
             // ie one captured 2s earlier should be displayed 2s earlier
-            
+
         		System.out.println("SYNCHRONIZED");
             while (imageList1.size() <= 0 || imageList2.size() <= 0){
                 // while there is no image to show
@@ -168,7 +172,7 @@ public class monitor {
                     e.printStackTrace();
                 }
             }
-            
+						System.out.println("Sync imagelist1: "+ imageList1.size());
             diff = imageList1.getFirst().timeStamp - imageList2.getFirst().timeStamp;
             // difference in time between the two images
             if (diff < 0){
@@ -205,7 +209,14 @@ public class monitor {
             		viewImage(imageList1.getFirst().image, gui.imagePanel1);
                 imageList1.removeFirst();
             }
-            
+
+
+
+
+
+
+
+
         } else {
             // display images asynchronously
             // display as soon as available
@@ -219,6 +230,7 @@ public class monitor {
                     e.printStackTrace();
                 }
             }
+						System.out.println("Sync imagelist1: "+ imageList1.size());
             if (imageList1.size() > 0){
                 // there is an image in list 1 to display
                 viewImage(imageList1.getFirst().image, gui.imagePanel1);
@@ -232,7 +244,7 @@ public class monitor {
         }
         notifyAll();
 	}
-    
+
 	synchronized int framesRate() {
 		// Look at mode
 		// tell camera new rate
@@ -254,5 +266,5 @@ public class monitor {
 		newImage = false;
 		return frames;
 	}
-	
+
 }

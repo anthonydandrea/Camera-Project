@@ -101,7 +101,7 @@ int main()
 
     printf("a before loop\n");
 
-     fd = getConnection(9990);
+     fd = getConnection(9991);
      sleep(3);
     pthread_t imageThread;
 

@@ -10,21 +10,29 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 
 public class ClientSockThread extends Thread{
-	Socket echoSocket;
+	Socket echoSocket = null;
 	BufferedReader in;
 	BufferedReader stdIn;
 	int numBytes = 33278;
 	byte b[] = new byte[numBytes];
     monitor m;
-    
-	ClientSockThread(monitor mon) {
+		int camera;
+		int port;
+
+	ClientSockThread(monitor mon, int c, int p) {
         m = mon;
+				camera = c;
+				port = p;
+				try {
+						echoSocket = new Socket("localhost", port);
+				} catch(Exception e) {}
 	}
 	public void run() {
 		int num = 0;
-		while(num < 10) {
+		while(true) {
+		
 		try {
-		    Socket echoSocket = new Socket("localhost", 9993);
+
 		    PrintWriter out =
 		        new PrintWriter(echoSocket.getOutputStream(), true);
 		    BufferedReader in =
@@ -42,24 +50,24 @@ public class ClientSockThread extends Thread{
 			String q = "";
 			q = b.toString();
 			System.out.println("length of q:" + q.length());
+				System.out.println("ClientSockThread add image");
+            m.addImage(camera, b, System.currentTimeMillis(), false);
+            //m.addImage(1, b, System.currentTimeMillis(), false);
+            //m.addImage(1, b, System.currentTimeMillis(), false);
 
-            m.addImage(1, b, System.currentTimeMillis(), false);
-            //m.addImage(1, b, System.currentTimeMillis(), false);
-            //m.addImage(1, b, System.currentTimeMillis(), false);
-            
-            BufferedImage image = ImageIO.read( new ByteArrayInputStream(b) );
-            ImageIO.write(image, "JPG", new File("SentImage1.jpg"));
+            //BufferedImage image = ImageIO.read( new ByteArrayInputStream(b) );
+            //ImageIO.write(image, "JPG", new File("SentImage1.jpg"));
         } catch (Exception e ){
         		e.printStackTrace();
         	};
         	num += 1;
         	try {
-        		Thread.sleep(3000);
+        		Thread.sleep(0);
         	} catch (InterruptedException e) {
         		// TODO Auto-generated catch block
         		e.printStackTrace();
         	}
 	}
 	}
-	
+
 }
