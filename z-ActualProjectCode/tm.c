@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <errno.h>
-#include "fakecapture.h"
+#include "camera.h"
 #include "server_common.h"
 #include <time.h>
 
@@ -19,8 +19,8 @@ int fd;
 struct global_data{
     char task;
     const int count;
-    media_stream * ms;
-    media_frame * image;
+    camera * cam;
+    frame * frame;
     long size;
 };
 
@@ -43,11 +43,12 @@ void * task_a(void * ctx)
     // ----------------------------------
         printf("task_a: %d\n",i);
         // gets image from fake camera and stores into global data
-        d->image = capture_get_frame(d->ms);
-        b = (byte*) d->image->data;
-        d->size = (long) capture_frame_size(d->image);
+        d->frame = camera_get_frame(d->cam);
+        b = get_frame_bytes(d->frame);
+        d->size = (long) get_frame_bytes(d->frame);
         do_serve(fd, b, d->size);
 
+         frame_free(d->frame);
         //sleep for fake camera
         struct timespec ts;
         int milliseconds = 250;
@@ -91,11 +92,11 @@ int main()
     //struct global_data data = {0,10};
     typedef char byte;
     const char * c = "c";
-    media_stream * ms;
+    camera * cam;
     //media_frame * image;
     byte * b;
-    ms = capture_open_stream(c, c);
-    struct global_data data = {0,247, ms};
+    cam = camera_open();
+    struct global_data data = {0,247, cam};
 
     printf("started task_a\n");
 
@@ -134,6 +135,7 @@ int main()
     pthread_mutex_unlock(&mtx);
     pthread_join(imageThread, NULL);
     pthread_join(thread_b, NULL);
+    camera_close(cam);
     closeConnection();
     printf("Here\n");
    return 0;
