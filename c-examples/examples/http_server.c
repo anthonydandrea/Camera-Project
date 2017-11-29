@@ -251,11 +251,6 @@ void* serve_client(void *ctxt)
     printf("buf[%s]\n", buf);
 #endif
     int hres = parse_http_request(buf, 1024);
-
-    snprintf(client->sendBuff, sizeof(client->sendBuff), "Hello...\n");
-client_write_string(client);
-
-
     if(hres == 0) {
 #ifdef USE_CAMERA
 	    int cres=0;

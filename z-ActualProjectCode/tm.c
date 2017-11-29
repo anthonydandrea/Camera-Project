@@ -88,7 +88,7 @@ void * task_b(void * ctx)
 }
 
 
-int main()
+int main(int argc, char* argv[])
 {
     //struct global_data data = {0,10};
     typedef char byte;
