@@ -28,8 +28,8 @@ static 			FakeCameraThread cam2;
 	     byte[] image4 = fi.getData();
 */
 		try {
-        cs1 = new ClientSock(9997);
-				cs1.connect();
+       // cs1 = new ClientSock(9997);
+		//		cs1.connect();
 
 			  cs2 = new ClientSock(9996);
 				cs2.connect();

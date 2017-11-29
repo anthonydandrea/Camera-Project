@@ -203,10 +203,11 @@ int main()
 
     if(!makeConnection(fd)) return -1;
     int x = 1;
-    for(int x = 1 ; x <= 20 ; x++) {
+    //for(int x = 1 ; x <= 20 ; x++) {
       do_serve(x);
-      sleep(1);
-     }
+        printf("on %d\n", x);
+      //sleep(1);
+    // }
 
     closeConnection();
 
