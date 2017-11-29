@@ -4,6 +4,7 @@
 #include <sys/socket.h>
 #include <netinet/ip.h>
 #include <string.h>
+#include "server.h"
 
 int bind_server_socket(int fd, int port);
 
