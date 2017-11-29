@@ -45,7 +45,7 @@ void * task_a(void * ctx)
         // gets image from fake camera and stores into global data
         d->frame = camera_get_frame(d->cam);
         b = get_frame_bytes(d->frame);
-        d->size = (long) get_frame_bytes(d->frame);
+        d->size = (long) get_frame_size(d->frame);
         do_serve(fd, b, d->size);
 
         frame_free(d->frame);
