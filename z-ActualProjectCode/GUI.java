@@ -17,6 +17,7 @@ public class GUI {
    private JLabel camModeLabel;
    private JLabel viewStatusLabel;
    private JLabel camStatusLabel;
+   public  JLabel delayLabel;
    
    // Panels containing buttons and images
    private JPanel viewButtonPanel;
@@ -40,10 +41,12 @@ public class GUI {
       camLabel2 = new JLabel("",JLabel.CENTER );
       viewModeLabel = new JLabel("",JLabel.CENTER);
       camModeLabel = new JLabel("", JLabel.CENTER);
+       delayLabel = new JLabel("", JLabel.CENTER);
       camLabel1.setPreferredSize(new Dimension(475, 15));
       camLabel2.setPreferredSize(new Dimension(475, 15));
       viewModeLabel.setPreferredSize(new Dimension(900, 30));
       camModeLabel.setPreferredSize(new Dimension(900, 30));
+       delayLabel.setPreferredSize(new Dimension(900, 30));
       viewStatusLabel = new JLabel("",JLabel.CENTER);        
       viewStatusLabel.setSize(800,100);
       viewStatusLabel.setText("Current Viewing Mode: Automatic"); 
@@ -59,7 +62,9 @@ public class GUI {
       viewModeLabel.setFont(viewModeLabel.getFont().deriveFont(18.0f));
       camModeLabel.setText("Camera Mode");
       camModeLabel.setFont(camModeLabel.getFont().deriveFont(18.0f));
-      
+      delayLabel.setText("Delay current time = 0");
+      delayLabel.setFont(camModeLabel.getFont().deriveFont(12.0f));
+       
       mainFrame.addWindowListener(new WindowAdapter() {
          public void windowClosing(WindowEvent windowEvent){
             System.exit(0);
@@ -87,6 +92,7 @@ public class GUI {
       mainFrame.add(camLabel2);
       mainFrame.add(imagePanel1);
       mainFrame.add(imagePanel2);
+    mainFrame.add(delayLabel);
       mainFrame.add(viewModeLabel);
       mainFrame.add(viewButtonPanel);
       mainFrame.add(viewStatusLabel);

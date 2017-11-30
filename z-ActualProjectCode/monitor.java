@@ -17,6 +17,8 @@ public class monitor {
 	long dispTime; // Time to display at
 	long diff; // difference in display times
 	long lastTimeAdded; // Last time an image was added
+    long delay;
+    TimestampedImage imageToDisp;
 
 	// LISTS OF IMAGES TO DISPLAY
 	LinkedList<TimestampedImage> imageList1 = new LinkedList<TimestampedImage>();
@@ -47,11 +49,12 @@ public class monitor {
 		viewingMode = ASYNCHRONOUS_MODE;
 		userViewMode = AUTOMATIC_MODE;
 		userCamMode = AUTOMATIC_MODE;
+        delay = 0;
 
 	}
 
 	//uncomment notifyAll at bottom if made synchronized again
-	synchronized public void addImage(int camera, byte[] i, long timestamp, boolean motion) {
+	synchronized public void addImage(int camera, byte[] i, long timestamp) {
 		// Check if none == new image
 			System.out.println("adding Image in monitor");
         // store the image into the list
@@ -77,12 +80,12 @@ public class monitor {
 
        }
         // Check for motion and change camera mode appropriately
-        if (motion == true && userCamMode != IDLE_MODE){
+        //if (motion == true && userCamMode != IDLE_MODE){
         		// If we are not enforcing Idle and there is motion, switch to Movie
-            cameraMode = MOVIE_MODE;
-        } else {
-            cameraMode = IDLE_MODE;
-        }
+        //    cameraMode = MOVIE_MODE;
+        //} else {
+        //    cameraMode = IDLE_MODE;
+       // }
         newImage = true;
 		// Alerts other threads
 		notifyAll();
@@ -184,12 +187,22 @@ public class monitor {
             // do the actual displaying of the first image
             if (display1 == true) {
             		// display image 1
-            		viewImage(imageList1.getFirst().image, gui.imagePanel1);
+                imageToDisp = imageList1.getFirst();
+                viewImage(imageToDisp.image, gui.imagePanel1);
+                delay = System.currentTimeMillis() - imageToDisp.timeStamp;
                 imageList1.removeFirst();
+                
+                gui.delayLabel.setText("Delay current time = " + delay);
+                gui.delayLabel.setFont(gui.delayLabel.getFont().deriveFont(12.0f));
             } else {
             		// display image 2
-            		viewImage(imageList2.getFirst().image, gui.imagePanel2);
+                imageToDisp = imageList2.getFirst();
+                viewImage(imageToDisp.image, gui.imagePanel2);
+                delay = System.currentTimeMillis() - imageToDisp.timeStamp;
                 imageList2.removeFirst();
+                
+                gui.delayLabel.setText("Delay current time = " + delay);
+                gui.delayLabel.setFont(gui.delayLabel.getFont().deriveFont(12.0f));
             }
             dispTime = System.currentTimeMillis() + diff;
             while(dispTime > System.currentTimeMillis()){
@@ -202,12 +215,22 @@ public class monitor {
             // Now we have waited the right amount, display the second image
             if (display1 == true) {
             		// display image 2
-            		viewImage(imageList2.getFirst().image, gui.imagePanel2);
-                imageList2.removeFirst();
+                    imageToDisp = imageList2.getFirst();
+            		viewImage(imageToDisp.image, gui.imagePanel2);
+                    delay = System.currentTimeMillis() - imageToDisp.timeStamp;
+                    imageList2.removeFirst();
+                
+                gui.delayLabel.setText("Delay current time = " + delay);
+                gui.delayLabel.setFont(gui.delayLabel.getFont().deriveFont(12.0f));
             } else {
             		// display image 1
-            		viewImage(imageList1.getFirst().image, gui.imagePanel1);
-                imageList1.removeFirst();
+                    imageToDisp = imageList1.getFirst();
+            		viewImage(imageToDisp.image, gui.imagePanel1);
+                    delay = System.currentTimeMillis() - imageToDisp.timeStamp;
+                    imageList1.removeFirst();
+                
+                gui.delayLabel.setText("Delay current time = " + delay);
+                gui.delayLabel.setFont(gui.delayLabel.getFont().deriveFont(12.0f));
             }
 
 
@@ -233,13 +256,23 @@ public class monitor {
 						System.out.println("Sync imagelist1: "+ imageList1.size());
             if (imageList1.size() > 0){
                 // there is an image in list 1 to display
-                viewImage(imageList1.getFirst().image, gui.imagePanel1);
+                imageToDisp = imageList1.getFirst();
+                viewImage(imageToDisp.image, gui.imagePanel1);
+                 delay = System.currentTimeMillis() - imageToDisp.timeStamp;
                 imageList1.removeFirst();
+                
+                gui.delayLabel.setText("Delay current time = " + delay);
+                gui.delayLabel.setFont(gui.delayLabel.getFont().deriveFont(12.0f));
             }
             if (imageList2.size() > 0){
                 // there is an image in list 2 to display
-                viewImage(imageList2.getFirst().image, gui.imagePanel2);
+                imageToDisp = imageList2.getFirst();
+                viewImage(imageToDisp.image, gui.imagePanel2);
+                 delay = System.currentTimeMillis() - imageToDisp.timeStamp;
                 imageList2.removeFirst();
+                
+                gui.delayLabel.setText("Delay current time = " + delay);
+                gui.delayLabel.setFont(gui.delayLabel.getFont().deriveFont(12.0f));
             }
         }
         notifyAll();
