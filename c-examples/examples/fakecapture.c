@@ -61,7 +61,7 @@ struct sockaddr_in motion_serv_addr;
 #ifdef __MACH__
 #define UNUSED_VALUE 1
 #define CLOCK_MONOTONIC UNUSED_VALUE
-int clock_gettime(int clk_id, struct timespec* t) {
+int clock_gettime(clockid_t clk_id, struct timespec* t) {
     struct timeval now;
     int res;
     if((res=gettimeofday(&now, NULL))){
