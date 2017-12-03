@@ -4,7 +4,7 @@
 CC=gcc
 
 .PHONY: all clean distclean
-all: tm tm2
+all: CameraServerMain
 
 CPPFLAGS+=-DFAKE -DDISABLE_SANITY_CHECKS
 CPPFLAGS+=-DUSE_POSIX_FUNCTION
@@ -14,16 +14,14 @@ CPPFLAGS+=-DINFO
 CFLAGS+=-g -Wall
 LDLIBS=-lpthread
 
-tm: server_common.c server.c tm.c fakecapture.c camera.c
-		$(CC) -o $@ $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) server_common.c server.c tm.c fakecapture.c camera.c $(LDLIBS)
+CameraServerMain: server_common.c server.c CameraServerMain.c fakecapture.c camera.c
+		$(CC) -o $@ $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) server_common.c server.c CameraServerMain.c fakecapture.c camera.c $(LDLIBS)
 
-tm2: server_common.c server.c tm2.c fakecapture.c camera.c
-		$(CC) -o $@ $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) server_common.c server.c tm2.c fakecapture.c camera.c $(LDLIBS);
 
 
 
 clean:
-		-rm *.o tm tm2
+	-rm *.o CameraServerMain
 
 distclean: clean
-	-rm *.o tm tm2
+	-rm *.o CameraServerMain
