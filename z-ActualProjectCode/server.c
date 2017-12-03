@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <sys/socket.h>
 #include <netinet/ip.h>
+#include <netinet/tcp.h>
 #include <string.h>
 #include "server.h"
 #include "fakecapture.h"

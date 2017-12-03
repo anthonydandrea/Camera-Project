@@ -23,16 +23,16 @@ public class FakeCameraThread extends Thread {
    while (true) {
     Thread.sleep(1000 * num);
     if (turn == 0) {
-    		mon.addImage(num, im1, System.currentTimeMillis());
+    		mon.addImage(num, im1, System.currentTimeMillis(), false);
     		turn = 1;
     } else if (turn == 1) {
-    		mon.addImage(num, im2, System.currentTimeMillis());
+    		mon.addImage(num, im2, System.currentTimeMillis(), false);
     		turn = 2;
     } else if (turn == 2) {
-    		mon.addImage(num, im3, System.currentTimeMillis());
+    		mon.addImage(num, im3, System.currentTimeMillis(), false);
     		turn = 3;
     } else {
-    		mon.addImage(num, im4, System.currentTimeMillis());
+    		mon.addImage(num, im4, System.currentTimeMillis(), false);
     		turn = 0;
     }
    }

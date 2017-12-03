@@ -56,7 +56,7 @@ public class monitor {
 	}
 
 	//uncomment notifyAll at bottom if made synchronized again
-	synchronized public void addImage(int camera, byte[] i, long timestamp) {
+	synchronized public void addImage(int camera, byte[] i, long timestamp, boolean motion) {
 		// Check if none == new image
 			System.out.println("adding Image in monitor");
         // store the image into the list
@@ -81,7 +81,12 @@ public class monitor {
     	   		viewingMode = ASYNCHRONOUS_MODE;
 
        }
-        System.out.println("Image added");
+        if (motion == true && userCamMode != IDLE_MODE){
+            // If we are not enforcing Idle and there is motion, switch to Movie
+            cameraMode = MOVIE_MODE;
+        } else {
+            cameraMode = IDLE_MODE;
+        }
         newImage = true;
 		// Alerts other threads
 		notifyAll();
@@ -277,13 +282,7 @@ public class monitor {
 	synchronized String framesRate() {
 		// Look at mode
 		// tell camera new rate
-		//while(!updatedMode) {
-		//	try {
-		//		wait();
-		//	} catch (InterruptedException e) {
-	//			e.printStackTrace();
-	//		}
-	//	}
+
 		// look at mode and determine frame rate
 		if (userCamMode == IDLE_MODE) {
 			// notify cameras of idle mode

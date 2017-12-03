@@ -18,129 +18,141 @@ public class ClientSockThread extends Thread{
     BufferedReader stdIn;
     InputStream is;
     int numBytes = 33278;
-    byte b[] = new byte[numBytes];
+    byte imageBytes[] = new byte[numBytes];
+    byte timeBytes[] = new byte[24];
+    byte sizeBytes[] = new byte[24];
+    byte motionBytes[] = new byte[24];
     monitor m;
     int camera;
     int port;
     int numRead;
     PrintWriter out;
-    char[] buffer = new char[100];
-    //ModeThread modeThread;
     String msg;
-    String s;
     int size;
     long timestamp;
     int totalRead;
+    char motionChar;
+    boolean detectedMotion;
+ 
     
     ClientSockThread(monitor mon, int c, int p) {
+        // Assign attributes
         m = mon;
         camera = c;
         port = p;
+        detectedMotion = false;
+        // Create socket and input streams
         try {
             echoSocket = new Socket("localhost", port);
             out = new PrintWriter(echoSocket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
-            //buffIn = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
             stdIn = new BufferedReader(new InputStreamReader(System.in));
             
             is = echoSocket.getInputStream();
-           // modeThread = new ModeThread(m, out);
-           // modeThread.start();
         } catch(Exception e) {}
     }
+    
+    
     public void run() {
         try{
             Thread.sleep(500);
         } catch (InterruptedException e){
             e.printStackTrace();
         }
-        while(!isInterrupted()) {
-            
+        int bytesRead = 0;
+        int n = 0;
+       // while(!isInterrupted()) {
+        for (int i = 0; i < 247; i++){
             try {
-                
-                // Instead:
-                // read chunk into buffer
-                // divide appropriately
-                
-                
+  
                 // read in the size of the image file
+                bytesRead = 0;
+                numRead = 0;
                 totalRead = 0;
-                while(totalRead < 23){
-                    System.out.println(".......");
-                    numRead = in.read(buffer, 0, 23);
-                    s = String.valueOf(buffer);
+                
+                while(totalRead < 6){
+                    numRead = is.read(sizeBytes, totalRead, (6 - totalRead));
                     totalRead += numRead;
                 }
-                System.out.println("read size bytes = " + totalRead);
-                
+                // Convert size to integer
+                String s = new String(sizeBytes, "UTF-8");
                 try{
                     size = Integer.parseInt(s.replaceAll("[\\D]", ""));
                 } catch (NumberFormatException e){
                     System.out.println("Error with converting to int " + s);
-                }
-
-                System.out.println("Read size as " + size);
-                if (size > numBytes){
-                    // bigger than max size
-                    System.out.println("ERROR READING SIZE: TOO BIG");
-                    size = 24710;
+                    size = 24400;
                 }
                 
-                // Read in the timestamp
+                System.out.println("Read size string as " + s);
+                System.out.println("Read size as " + size);
+                
+                // Check size to make sure it's resonable
+                if (size > numBytes){
+                    System.out.println("ERROR READING SIZE: TOO BIG");
+                    size = 24400;
+                }
+                
+                // Read in motion
+                // "have" means motion is occuring
+                // "stil" means no motion is happening
                 totalRead = 0;
-                while(totalRead < 23){
-                    System.out.println(".......");
-                    numRead = in.read(buffer, 0, 24);
-                    s = String.valueOf(buffer);
+                numRead = 0;
+                while(totalRead < 5){
+                    numRead = is.read(motionBytes, totalRead, (5 - totalRead));
                     totalRead += numRead;
                 }
-                System.out.println("read time bytes = " + totalRead);
-                
-                try{
-                    timestamp = Long.parseLong(s.replaceAll("[\\D]", ""));
-                } catch (NumberFormatException e){
-                    System.out.println("Error with converting to long " + s);
-
-                }
-                System.out.println("read time as = " + timestamp);
+                String motion = new String(motionBytes, "UTF-8");
+                System.out.println("motion = " + motion);
+          
+             
                 
                 // Read in the image data
                 totalRead = 0;
-                while(totalRead < (size - 1)){
-                    //if (is.available() > 1){
-                        System.out.println("READING");
-                        numRead = is.read(b, 0, size - numRead);
-                        System.out.println("READ " + numRead);
-                        totalRead += numRead;
-                    //}else {
-                    //    System.out.println("Nothing to read");
-                    //    Thread.sleep(200);
-                    //}
+                n = 0;
+                bytesRead = 0;
+                
+                while((n = is.read(imageBytes, bytesRead, size - bytesRead)) > 0){
+                    System.out.println("IN HERE");
+                    System.out.println("Have read " + bytesRead);
+                    bytesRead += n;
                 }
-                System.out.println("read image bytes " + totalRead);
-                if (totalRead > size){
-                    System.out.println("READ EXTRA " + (totalRead - size));
+                System.out.println("Read " + bytesRead);
+                
+ 
+                // Read in the timestamp
+                totalRead = 0;
+                numRead = 0;
+                while(totalRead < 20){
+                    numRead = is.read(timeBytes, totalRead, (20 - totalRead));
+                    totalRead += numRead;
                 }
-                 
-  
                 
-                //System.out.println("Read image bytes: " + numRead);
-                //numRead = is.read(b,0,size);
-                //System.out.println("Read # bytes: " + numRead);
-                //String q = "";
-                //q = b.toString();
-                //System.out.println("length of q:" + q.length());
-                //System.out.println("ClientSockThread add image");
-                m.addImage(camera, b, System.currentTimeMillis());
+                // Convert timestamp to long
+                String str = new String(timeBytes, "UTF-8");
+                try{
+                    timestamp = Long.parseLong(str.replaceAll("[\\D]", ""));
+                } catch (NumberFormatException e){
+                    System.out.println("Error converting to long");
+                }
+                timestamp = timestamp / 1000000;
+                System.out.println("Read time as: " + str);
+                System.out.println("Converted time to " + timestamp);
+          
+                // Add image to monitor
+                motionChar =  motion.charAt(0);
+                if (motionChar == 'h'){
+                    // motion detected
+                    System.out.println("DETECTED MOTION");
+                    detectedMotion = true;
+                } else {
+                    System.out.println("NO MOTION");
+                    detectedMotion = false;
+                }
+                m.addImage(camera, imageBytes, timestamp, detectedMotion);
                 
-                //in.read(buffer, 0, 8);
-                //s = String.valueOf(buffer);
-                //System.out.println("Read in the time of " + s);
-                
-                
-                //msg = m.framesRate();
-                msg = "Aut";
-                System.out.println(msg);
+            
+                // Get mode from monitor and send it back
+                msg = m.framesRate();
                 out.println(msg);
 
   
