@@ -5,6 +5,7 @@
 #include <netinet/ip.h>
 #include <string.h>
 #include "server.h"
+#include "fakecapture.h"
 
 int bind_server_socket(int fd, int port);
 
@@ -32,7 +33,7 @@ int create_server_socket(int port)
     return fd;
 }
 
-int bind_server_socket(int fd, int port){
+ int bind_server_socket(int fd, int port){
 
     struct sockaddr_in addr;
     int val = 1;
@@ -55,20 +56,27 @@ int bind_server_socket(int fd, int port){
     return fd;
 }
 
-int clientfd;
-int getConnection(int port) {
+//int clientfd;
+int getConnection1(int port) {
   int fd = create_server_socket(port);
   if(fd < 0){
       perror("create_server_socket");
       return 1;
   }
 
-  if((clientfd = accept(fd, NULL, NULL)) < 0) return -1;
-  printf("Connected successfully\n");
+  //if((clientfd = accept(fd, NULL, NULL)) < 0) return -1;
+  //printf("Connected successfully\n");
   return fd;
 }
 
-int closeConnection() {
+int getConnection2(int fd){
+    int clientfd;
+    if((clientfd = accept(fd, NULL, NULL)) < 0) return -1;
+    printf("Connected successfully\n");
+    return clientfd;
+}
+
+int closeConnection(clientfd) {
 
   printf("simple_tcp_server: closing socket");
   return close(clientfd);
@@ -76,54 +84,9 @@ int closeConnection() {
 /*
  * Serve one client: send a message and close the socket
  */
-int do_serve(int fd, char *msg, long filelen)
+int do_serve(int fd, char *msg, long filelen, int clientfd)
 {
-
-  //////////////////////////////////
-
-    FILE *fileptr;
-   // char *msg;
-    //long filelen;
-
-    /*
-    if (try == 1){
-        fileptr = fopen("media/film001.jpg", "rb");  // Open the file in binary mode
-    } else {
-        fileptr = fopen("media/film146.jpg", "rb");  // Open the file in binary
-    }
-    fseek(fileptr, 0, SEEK_END);          // Jump to the end of the file
-    filelen = ftell(fileptr);             // Get the current byte offset in the file
-    rewind(fileptr);                      // Jump back to the beginning of the file
-
-    msg = (char *)malloc((filelen+1)*sizeof(char)); // Enough memory for file + \0
-    fread(msg, filelen, 1, fileptr); // Read in the entire file
-    fclose(fileptr); // Close the file
-     */
-   // printf("filelength: %lu\n",filelen);
-
-    /*
-    FILE *f = fopen("CSent.txt", "w");
-    if (f == NULL)
-    {
-      printf("Error opening file!\n");
-      exit(1);
-    }
-
-    for(int x = 0 ; x < filelen ; x++)
-      //  printf("%d",msg[x]);
-      fprintf(f, "%d", msg[x]);
-
-    fclose(f);
-     */
-
-  ////////////////////////////////////
-
-
-
-    /*const char* msg = "Hello, socket!\n"
-                      "I am a text\n"
-                      "BYE.\n";
-                      */
+   // int javaclient;
     size_t len = filelen;
     printf("len:%lu\n",len);
     printf("simple_tcp_server: attempting accept on fd %d\n",fd);
@@ -158,26 +121,27 @@ int do_serve(int fd, char *msg, long filelen)
 
  error:
     printf("simple_tcp_server: closing clientfd (%d)\n",clientfd);
-
-}
-
-/*
-int main()
-{
-    int fd = create_server_socket(9993);
-
-    if(fd < 0){
-        perror("create_server_socket");
-        return 1;
-    }
-
-    do_serve(fd, 1);
-    do_serve(fd, 2);
-
-    printf("simple_tcp_server: closing socket: %d\n", fd);
-    close(fd);
-
-
+    //fake_motion_free();
     return 0;
+    //return javaclient;
 }
- */
+
+#define BUFSZ 5
+void get_javamsg(char * msg, int fd)
+{
+    //char msg[BUFSZ];
+    printf("Trying to read from Java\n");
+    int res = read(fd, msg, BUFSZ-1);
+    if(res < 0) {
+        printf("ERROR HERE\n");
+        perror("ERROR reading from server");
+        return;
+    } else {
+        msg[res]='\0'; /* ensure msg is null terminated */
+        printf("client: response: %s\n",msg);
+        return;
+    }
+    
+}
+
+

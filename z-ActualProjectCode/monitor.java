@@ -13,6 +13,7 @@ public class monitor {
 
 	// ATTRIBUTES RELATING TO DISPLAYING IMAGES
 	boolean newImage; // new picture available
+    boolean updatedMode;
 	boolean display1; // Which camera to display
 	long dispTime; // Time to display at
 	long diff; // difference in display times
@@ -25,7 +26,7 @@ public class monitor {
 	LinkedList<TimestampedImage> imageList2 = new LinkedList<TimestampedImage>();
 
 	boolean emptyList;
-	int frames;
+	String message;
 
 	GUI gui;
 
@@ -35,6 +36,7 @@ public class monitor {
 
 	public static final int SYNCHRONOUS_MODE  = 0;
 	public static final int ASYNCHRONOUS_MODE = 1;
+    
     public static final int AUTOMATIC_MODE = 2;
 
     public static final int CAMERA_1 = 0;
@@ -79,13 +81,7 @@ public class monitor {
     	   		viewingMode = ASYNCHRONOUS_MODE;
 
        }
-        // Check for motion and change camera mode appropriately
-        //if (motion == true && userCamMode != IDLE_MODE){
-        		// If we are not enforcing Idle and there is motion, switch to Movie
-        //    cameraMode = MOVIE_MODE;
-        //} else {
-        //    cameraMode = IDLE_MODE;
-       // }
+        System.out.println("Image added");
         newImage = true;
 		// Alerts other threads
 		notifyAll();
@@ -121,7 +117,7 @@ public class monitor {
         			}
         		}
         }
-        //modeChanged = true;
+        updatedMode = true;
         notifyAll();
         return;
 		// alerts other threads
@@ -175,7 +171,7 @@ public class monitor {
                     e.printStackTrace();
                 }
             }
-						System.out.println("Sync imagelist1: "+ imageList1.size());
+            System.out.println("Sync imagelist1: "+ imageList1.size());
             diff = imageList1.getFirst().timeStamp - imageList2.getFirst().timeStamp;
             // difference in time between the two images
             if (diff < 0){
@@ -253,7 +249,7 @@ public class monitor {
                     e.printStackTrace();
                 }
             }
-						System.out.println("Sync imagelist1: "+ imageList1.size());
+            System.out.println("ASync imagelist1: "+ imageList1.size());
             if (imageList1.size() > 0){
                 // there is an image in list 1 to display
                 imageToDisp = imageList1.getFirst();
@@ -278,26 +274,30 @@ public class monitor {
         notifyAll();
 	}
 
-	synchronized int framesRate() {
+	synchronized String framesRate() {
 		// Look at mode
 		// tell camera new rate
-		while(!newImage) {
-			try {
-				wait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
+		//while(!updatedMode) {
+		//	try {
+		//		wait();
+		//	} catch (InterruptedException e) {
+	//			e.printStackTrace();
+	//		}
+	//	}
 		// look at mode and determine frame rate
-		if (cameraMode == IDLE_MODE) {
-			// Idle, send at a low fixed rate
-			frames = 5;
-		} else {
-			// Movie, send at higher rate
-			frames = 12;
-		}
-		newImage = false;
-		return frames;
+		if (userCamMode == IDLE_MODE) {
+			// notify cameras of idle mode
+            // Send information to c
+            message = "Idl";
+		} else if (userCamMode == AUTOMATIC_MODE){
+			// notify cameras of automatic mode
+            message = "Aut";
+        } else {
+            // notify cameras of movie mode
+            message = "Mov";
+        }
+		updatedMode = false;
+		return message;
 	}
 
 }

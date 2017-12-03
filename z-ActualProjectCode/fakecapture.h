@@ -97,6 +97,8 @@ capture_frame_height(const media_frame *frame);
 size_t
 capture_frame_width(const media_frame *frame);
 
+void fake_motion_free();
+
 void
 capture_frame_free(media_frame *frame);
 

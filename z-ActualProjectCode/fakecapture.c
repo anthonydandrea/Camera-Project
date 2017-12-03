@@ -19,7 +19,7 @@
 //
 // we need sockets for fake motion detection,
 // define to turn fake motion detection off
-// #define NO_FAKE_MOTION
+ #define NO_FAKE_MOTION
 
 #ifdef SHORT_NUMBER_FRAME_SEQUENCE
 #define MEDIA_FRAME_STR "media/%d.jpg"
@@ -30,7 +30,7 @@
 #ifndef START_FRAME
 // to skip directly to the parts with motion,
 // define START_FRAME to (a bit less than) 86
-#define START_FRAME 96
+#define START_FRAME 6
 #endif
 #define NUM_FRAMES 247
 #endif
@@ -50,7 +50,7 @@
 
 static void fake_motion_detect(int frame_nr);
 static void fake_motion_init();
-static void fake_motion_free();
+void fake_motion_free();
 int motionfd;
 struct hostent *motion_server;
 struct sockaddr_in motion_serv_addr;
@@ -79,6 +79,7 @@ capture_open_stream(const char *media_type, const char *media_props)
     media_stream *res = malloc(sizeof(media_stream));
     res->frame_nr = START_FRAME;
 #ifndef NO_FAKE_MOTION
+    printf("Opening fake motion\n");
    fake_motion_init();
 #endif
     return res;
@@ -214,6 +215,7 @@ capture_close_stream(media_stream *stream)
 #endif
 static void fake_motion_notify()
 {
+    printf("Fake motion notify 1\n");
     char msg[100];
     snprintf(msg, 100, "GET /motion?Message=%ld\n",time(0));
 #ifdef DEBUG
@@ -235,10 +237,12 @@ static void fake_motion_detect(int frame_nr)
 #ifdef SHORT_NUMBER_FRAME_SEQUENCE
 // START_FRAME 1
 // NUM_FRAMES 5
+    printf("Fake motion detect 1\n");
     fake_motion_notify();
 #else
 // START_FRAME 55
 // NUM_FRAMES 247
+    printf("Fake motion detect 2\n");
     if(frame_nr > 86 && frame_nr < 219 && (frame_nr % 5 == 0)){
 	fake_motion_notify();
     }
@@ -247,7 +251,9 @@ static void fake_motion_detect(int frame_nr)
 }
 static void fake_motion_init()
 {
+    printf("initializing fake motion\n");
     motionfd = socket(AF_INET, SOCK_STREAM, 0);
+    printf("server created\n");
     if (motionfd < 0) {
 	perror("creating motion socket");
 	//TODO: set error flag to avoid using motion
@@ -257,16 +263,22 @@ static void fake_motion_init()
     if (motion_server == NULL) {
 	fprintf(stderr,"ERROR, motion_server name not found\n");
     }
+    printf("1\n");
     bzero((char *) &motion_serv_addr, sizeof(motion_serv_addr));
+    printf("2\n");
     motion_serv_addr.sin_family = AF_INET;
+    printf("3\n");
     bcopy((char *)motion_server->h_addr, (char *)&motion_serv_addr.sin_addr.s_addr, motion_server->h_length);
+    printf("4\n");
     motion_serv_addr.sin_port = htons(MOTION_PORT);
 }
-static void fake_motion_free()
+void fake_motion_free()
 {
     //TODO: any more cleanup needed?
     if (close(motionfd)) {
+        motionfd = -1;
 	perror("closing motion socket");
     }
+     motionfd = -1;
 }
 #endif

@@ -13,7 +13,7 @@
 pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t cnd = PTHREAD_COND_INITIALIZER;
 
-int fd;
+//int fd;
 
 
 struct global_data{
@@ -22,6 +22,8 @@ struct global_data{
     camera * cam;
     frame * frame;
     long size;
+    int fd;
+    int clientfd;
 };
 
 
@@ -32,7 +34,7 @@ void * task_a(void * ctx)
     int i;
     typedef char byte;
     byte * b;
-    int fd;
+    //int fd;
     
     
     d->cam = camera_open();
@@ -43,13 +45,16 @@ void * task_a(void * ctx)
         while(d->task != 'a') pthread_cond_wait(&cnd, &mtx);
         // ----------------------------------
         printf("task_a: %d\n",i);
+        
         // gets image from fake camera and stores into global data
         d->frame = camera_get_frame(d->cam);
         b = get_frame_bytes(d->frame);
         d->size = (long) get_frame_size(d->frame);
-        do_serve(fd, b, d->size);
+        
+        do_serve(d->fd, b, d->size, d->clientfd);
         
         frame_free(d->frame);
+        
         //sleep for fake camera
         struct timespec ts;
         int milliseconds = 60;
@@ -73,6 +78,7 @@ void * task_b(void * ctx)
 {
     struct global_data *d = ctx;
     int i;
+    char msg[4];
     
     printf("started task_b\n");
     for(i=0; i < d->count; ++i){
@@ -80,6 +86,7 @@ void * task_b(void * ctx)
         while(d->task != 'b') pthread_cond_wait(&cnd, &mtx);
         // ----------------------------------
         printf("b\n");
+         get_javamsg(msg, d->clientfd);
         // ----------------------------------
         d->task = 'a';
         pthread_cond_signal(&cnd);
@@ -92,21 +99,14 @@ void * task_b(void * ctx)
 int main()
 {
     //struct global_data data = {0,10};
-    typedef char byte;
-    const char * c = "c";
-    camera * cam;
-    //media_frame * image;
-    byte * b;
     struct global_data data = {0,247};
     
-    printf("started task_a\n");
-    
-    printf("a before loop\n");
-    
-    fd = getConnection(9991);
+    // create connection
+    data.fd = getConnection1(9991);
+    data.clientfd = getConnection2(data.fd);
     sleep(3);
-    pthread_t imageThread;
     
+    pthread_t imageThread;
     pthread_t thread_b;
     
     // Create the first thread
