@@ -122,15 +122,12 @@ int do_serve(int fd, char *msg, long filelen, int clientfd)
 
  error:
     printf("simple_tcp_server: closing clientfd (%d)\n",clientfd);
-    //fake_motion_free();
     return 0;
-    //return javaclient;
 }
 
 #define BUFSZ 5
 void get_javamsg(char * msg, int fd)
 {
-    //char msg[BUFSZ];
     printf("Trying to read from Java\n");
     int res = read(fd, msg, BUFSZ-1);
     if(res < 0) {

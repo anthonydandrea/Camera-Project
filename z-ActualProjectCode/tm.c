@@ -14,8 +14,6 @@
 pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t cnd = PTHREAD_COND_INITIALIZER;
 
-//int fd;
-
 
 struct global_data{
     // Global data shared between threads
@@ -40,9 +38,7 @@ struct global_data{
 void * task_send(void * ctx)
 {
     struct global_data *d = ctx; // Pointer to data
-    // *****************
-    int i; // loop variable want to get rid of this
-    //*******************
+    int i; // loop variable for fake camera
     typedef char byte;
     byte * b; // bytes of image
     struct timespec ts;
@@ -52,10 +48,10 @@ void * task_send(void * ctx)
     char motionMsg[5] = "have";
     d->cam = camera_open(); // open the camera
     int delayBetweenFrames;
-    //******************
+    
     //while(true){ // change this to for for fake camera
     for(i=0; i < d->count; ++i){ // change this to while for real camera
-    //****************
+
         pthread_mutex_lock(&mtx);
         printf("beforewhile\n");
         while(d->task != 'a') pthread_cond_wait(&cnd, &mtx);
@@ -76,8 +72,8 @@ void * task_send(void * ctx)
                 delayBetweenFrames = 250;
             }
         }
-        //1512321492783687936
-        // gets image from fake camera and stores into global data
+        
+        // get image from fake camera and stores into global data
         d->frame = camera_get_frame(d->cam);
         b = get_frame_bytes(d->frame);
         d->size = (int) get_frame_size(d->frame);
@@ -105,12 +101,11 @@ void * task_send(void * ctx)
         snprintf(timeBuffer, 20, "%llu", d->timestamp);
         do_serve(d->fd, timeBuffer, 20, d->clientfd);
         
-        
+        // free frame
         frame_free(d->frame);
         d->frameCount += 1;
         
         //sleep for fake camera
-        //delayBetweenFrames = 200;
         ts.tv_sec = delayBetweenFrames / 1000;
         ts.tv_nsec = (delayBetweenFrames % 1000) * 1000000;
         nanosleep(&ts, NULL);
@@ -138,7 +133,6 @@ void * task_recieve(void * ctx)
         // ----------------------------------
         // look to see if there's anything send back
         // update userMode accordingly
-        printf("b\n");
         get_javamsg(msg, d->clientfd);
         if (msg[0] ==  'I'){
             printf("MESSAGE = IDL\n");
@@ -170,6 +164,7 @@ void * task_motion(void * ctx)
         while(d->task != 'c') pthread_cond_wait(&cnd, &mtx);
         // ----------------------------------
         // Look for motion
+        // If in real camera, poll motion server here
         if (d->frameCount > 86 && d->frameCount < 219){
             d->motion = true;
              printf("motion\n");
@@ -209,7 +204,7 @@ int main(int argc, char* argv[])
     pthread_t recievingThread;
     pthread_t motionThread;
     
-    // Create the first thread
+    // Create the thread sending data
     if(pthread_create(&sendingThread, NULL, task_send, &data)){
         printf("Failed to create thread_a\n");
         exit(1);
@@ -218,13 +213,13 @@ int main(int argc, char* argv[])
     //start the first task
     data.task = 'a';
     
-    // Create the second thread
+    // Create the thread revieving data
     if(pthread_create(&recievingThread, NULL, task_recieve, &data)){
         printf("Failed to create thread_b\n");
         exit(2);
     }
     
-    
+    // create the thread detecting motion
     if(pthread_create(&motionThread, NULL, task_motion, &data)){
         printf("Failed to create thread_b\n");
         exit(2);
