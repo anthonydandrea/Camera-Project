@@ -7,6 +7,7 @@
 #include <errno.h>
 #include "camera.h"
 #include "server_common.h"
+#include "motion_client.h"
 #include <time.h>
 #include <string.h>
 
@@ -157,6 +158,8 @@ void * task_motion(void * ctx)
         // ----------------------------------
         // Look for motion
         // If in real camera, poll motion server here
+        // get_motion();
+        // interpret the data here
         if (d->frameCount > 86 && d->frameCount < 219){
             d->motion = true;
         } else {
@@ -186,6 +189,12 @@ int main(int argc, char* argv[])
     data.count = 247;
     data.fd = getConnection1(port);
     data.clientfd = getConnection2(data.fd);
+    
+    // create motion client connection
+    //init("localhost", 9090);
+    //motion_get();
+    
+    
     data.userMode = 1;
     data.motion = 0;
     sleep(3);
@@ -224,6 +233,7 @@ int main(int argc, char* argv[])
     pthread_mutex_unlock(&mtx);
     pthread_join(sendingThread, NULL);
     pthread_join(recievingThread, NULL);
+    pthread_join(motionThread, NULL);
     closeConnection(data.clientfd);
     return 0;
 }
